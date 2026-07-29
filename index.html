@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#1a2744">
+<meta name="description" content="APN智能工作中心 - 陶陶的专属工作台">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="工作台">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/svg+xml" href="./icon-192.svg">
+<link rel="apple-touch-icon" href="./icon-192.svg">
+<title>陶陶的工作台 - APN智能工作中心</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Fallback for offline - system fonts */
+@font-face { font-family: 'Noto Sans SC Fallback'; src: local('PingFang SC'), local('Microsoft YaHei'), local('Hiragino Sans GB'); }
+@font-face { font-family: 'Noto Serif SC Fallback'; src: local('Songti SC'), local('SimSun'), local('STSong'); }
+:root {
+  --font-sans: 'Noto Sans SC', 'Noto Sans SC Fallback', -apple-system, sans-serif;
+  --font-serif: 'Noto Serif SC', 'Noto Serif SC Fallback', 'Songti SC', serif;
+  --bg: #f5f3ef;
+  --surface: #ffffff;
+  --surface-alt: #faf8f5;
+  --navy: #1a2744;
+  --navy-light: #243556;
+  --teal: #2d8a7b;
+  --teal-light: #e8f5f3;
+  --gold: #c4963d;
+  --gold-light: #fdf6e8;
+  --coral: #d4726a;
+  --coral-light: #fef0ef;
+  --slate: #5a6c7d;
+  --slate-light: #eef1f4;
+  --border: #e8e4dc;
+  --text: #2c3a3a;
+  --text-secondary: #6b7c7c;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);
+  --shadow: 0 4px 16px rgba(0,0,0,.06),0 2px 4px rgba(0,0,0,.04);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,.08),0 4px 8px rgba(0,0,0,.04);
+  --transition: 0.2s cubic-bezier(.4,0,.2,1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height:1.6;
+  min-height:100vh;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(45,138,123,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(196,150,61,0.03) 0%, transparent 50%);
+}
+
+.header {
+  background: var(--navy);
+  color:#fff;
+  padding: 0 32px;
+  height: 64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:100;
+  box-shadow: 0 2px 16px rgba(26,39,68,.15);
+}
+.header-left { display:flex; align-items:center; gap:16px; }
+.logo { font-family: var(--font-serif); font-size:20px; font-weight:700; letter-spacing:1px; color:#fff; }
+.logo span { color: var(--gold); }
+.header-time { font-size:13px; color: rgba(255,255,255,.65); display:flex; align-items:center; gap:8px; }
+.header-time .date { font-size:15px; color: rgba(255,255,255,.9); font-weight:500; }
+.header-right { display:flex; align-items:center; gap:20px; }
+.greeting { font-size:14px; color: rgba(255,255,255,.8); }
+.greeting strong { color: var(--gold); font-weight:600; }
+.quick-search { background: rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15); border-radius:20px; padding:6px 16px; color:#fff; font-size:13px; width:200px; outline:none; transition: var(--transition); }
+.quick-search::placeholder { color: rgba(255,255,255,.4); }
+.quick-search:focus { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.3); width:260px; }
+
+.main-layout { display:grid; grid-template-columns: 240px 1fr 320px; gap:20px; padding:20px 24px; max-width:1600px; margin:0 auto; min-height: calc(100vh - 64px); }
+
+.sidebar { display:flex; flex-direction:column; gap:16px; }
+.sidebar-card { background: var(--surface); border-radius: var(--radius); padding:20px; box-shadow: var(--shadow-sm); border:1px solid var(--border); }
+.sidebar-card h3 { font-size:13px; color: var(--slate); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:14px; font-weight:600; }
+.platform-link { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius: var(--radius-sm); text-decoration:none; color: var(--text); font-size:14px; font-weight:500; transition: var(--transition); margin-bottom:4px; }
+.platform-link:hover { background: var(--teal-light); color: var(--teal); }
+.platform-link .icon-box { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.icon-stroke { background: #e8f0fe; }
+.icon-shift { background: #fef0ef; }
+.icon-data { background: #e8f5f3; }
+.icon-book { background: #fdf6e8; }
+.icon-folder { background: #fdf6e8; }
+
+.work-category { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:6px; cursor:pointer; font-size:13px; color: var(--text-secondary); transition: var(--transition); }
+.work-category:hover, .work-category.active { background: var(--slate-light); color: var(--navy); font-weight:500; }
+.work-category .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.dot-apn { background: var(--teal); }
+.dot-zhuanbing { background: #5b8def; }
+.dot-biaozhun { background: var(--gold); }
+.dot-keyan { background: var(--coral); }
+.dot-bisai { background: #8b5cf6; }
+.dot-gzh { background: #f59e0b; }
+.dot-qita { background: var(--slate); }
+
+.main-content { display:flex; flex-direction:column; gap:20px; }
+
+/* Tab Switcher */
+.tab-switcher { display:flex; gap:4px; background: var(--surface); border-radius: var(--radius); padding:4px; box-shadow: var(--shadow-sm); border:1px solid var(--border); }
+.tab-btn { flex:1; padding:10px 16px; border:none; background:transparent; border-radius: var(--radius-sm); font-size:14px; font-weight:500; cursor:pointer; color: var(--text-secondary); transition: var(--transition); font-family:inherit; }
+.tab-btn.active { background: var(--teal); color:#fff; }
+.tab-btn:hover:not(.active) { color: var(--navy); }
+
+/* Quick Record */
+.quick-record { background: var(--surface); border-radius: var(--radius); padding:18px 20px; box-shadow: var(--shadow); border:1px solid var(--border); display:flex; gap:12px; align-items:center; }
+.quick-record input { flex:1; border:1px solid var(--border); border-radius: var(--radius-sm); padding:10px 14px; font-size:14px; font-family:inherit; outline:none; transition: var(--transition); }
+.quick-record input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(45,138,123,.1); }
+.quick-record select { border:1px solid var(--border); border-radius: var(--radius-sm); padding:10px 14px; font-size:13px; font-family:inherit; color: var(--text); background: var(--surface); cursor:pointer; outline:none; min-width:120px; }
+.btn { padding:10px 20px; border-radius: var(--radius-sm); font-size:14px; font-weight:600; cursor:pointer; border:none; transition: var(--transition); font-family:inherit; white-space:nowrap; }
+.btn-primary { background: var(--teal); color:#fff; }
+.btn-primary:hover { background: #247a6c; transform:translateY(-1px); box-shadow: 0 4px 12px rgba(45,138,123,.3); }
+.btn-gold { background: var(--gold); color:#fff; }
+.btn-gold:hover { background: #b3872f; }
+.btn-outline { background: transparent; border:1.5px solid var(--border); color: var(--text-secondary); }
+.btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+.btn-sm { padding:6px 14px; font-size:12px; }
+
+.stats-row { display:grid; grid-template-columns: repeat(4,1fr); gap:14px; }
+.stat-card { background: var(--surface); border-radius: var(--radius); padding:18px 20px; box-shadow: var(--shadow-sm); border:1px solid var(--border); transition: var(--transition); }
+.stat-card:hover { transform:translateY(-2px); box-shadow: var(--shadow); }
+.stat-card .stat-label { font-size:12px; color: var(--slate); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.stat-card .stat-value { font-size:32px; font-weight:700; font-family: var(--font-serif); line-height:1; }
+.stat-card .stat-sub { font-size:12px; color: var(--text-secondary); margin-top:4px; }
+.val-teal { color: var(--teal); }
+.val-gold { color: var(--gold); }
+.val-coral { color: var(--coral); }
+.val-navy { color: var(--navy); }
+
+.section-title { font-size:16px; font-weight:700; color: var(--navy); display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+.section-title::before { content:''; width:4px; height:18px; background: var(--teal); border-radius:2px; }
+.work-list { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow-sm); border:1px solid var(--border); overflow:hidden; }
+.work-item { display:flex; align-items:center; padding:14px 18px; border-bottom:1px solid var(--border); transition: var(--transition); gap:14px; }
+.work-item:last-child { border-bottom:none; }
+.work-item:hover { background: var(--surface-alt); }
+.work-item .time-badge { font-size:11px; color: var(--slate); background: var(--slate-light); padding:3px 8px; border-radius:4px; white-space:nowrap; flex-shrink:0; }
+.work-item .cat-tag { font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px; white-space:nowrap; flex-shrink:0; }
+.tag-apn { background: var(--teal-light); color: var(--teal); }
+.tag-zhuanbing { background: #e8f0fe; color: #3b6fd4; }
+.tag-biaozhun { background: var(--gold-light); color: var(--gold); }
+.tag-keyan { background: var(--coral-light); color: var(--coral); }
+.tag-bisai { background: #f3eeff; color: #7c3aed; }
+.tag-gzh { background: #fef7e0; color: #d97706; }
+.tag-qita { background: var(--slate-light); color: var(--slate); }
+.work-item .work-text { flex:1; font-size:14px; color: var(--text); }
+.work-item .delete-btn { background:none; border:none; color: #ccc; cursor:pointer; font-size:16px; padding:4px; transition: var(--transition); flex-shrink:0; opacity:0; }
+.work-item:hover .delete-btn { opacity:1; }
+.work-item .delete-btn:hover { color: var(--coral); }
+
+/* Todo items */
+.todo-item { display:flex; align-items:center; padding:12px 18px; border-bottom:1px solid var(--border); transition: var(--transition); gap:12px; }
+.todo-item:last-child { border-bottom:none; }
+.todo-item:hover { background: var(--surface-alt); }
+.todo-check { width:22px; height:22px; border:2px solid #d0d0d0; border-radius:50%; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition: var(--transition); font-size:12px; color:transparent; }
+.todo-check:hover { border-color: var(--teal); }
+.todo-check.done { background: var(--teal); border-color: var(--teal); color:#fff; }
+.todo-text { flex:1; font-size:14px; }
+.todo-text.done { text-decoration:line-through; color: #bbb; }
+.todo-item .todo-cat { font-size:11px; font-weight:600; padding:2px 8px; border-radius:10px; white-space:nowrap; flex-shrink:0; }
+.todo-actions { display:flex; gap:4px; flex-shrink:0; opacity:0; }
+.todo-item:hover .todo-actions { opacity:1; }
+.todo-actions button { background:none; border:none; cursor:pointer; font-size:13px; padding:3px 6px; border-radius:4px; color: var(--text-secondary); transition: var(--transition); }
+.todo-actions button:hover { background: var(--slate-light); color: var(--teal); }
+
+.empty-state { padding:40px; text-align:center; color: var(--text-secondary); font-size:14px; }
+
+/* Right panel */
+.right-panel { display:flex; flex-direction:column; gap:16px; }
+.panel-card { background: var(--surface); border-radius: var(--radius); padding:20px; box-shadow: var(--shadow-sm); border:1px solid var(--border); }
+.panel-card h3 { font-size:13px; color: var(--slate); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:14px; font-weight:600; }
+.progress-bar-wrap { margin-bottom:14px; }
+.progress-bar-wrap .label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; color: var(--text-secondary); }
+.progress-bar-wrap .label strong { color: var(--text); }
+.progress-bar { height:8px; background: var(--slate-light); border-radius:4px; overflow:hidden; }
+.progress-fill { height:100%; border-radius:4px; transition: width .5s ease; }
+.fill-teal { background: var(--teal); }
+.fill-gold { background: var(--gold); }
+.fill-coral { background: var(--coral); }
+.quick-link { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius: var(--radius-sm); cursor:pointer; font-size:13px; color: var(--text-secondary); transition: var(--transition); }
+.quick-link:hover { background: var(--slate-light); color: var(--navy); }
+.quick-link .ql-icon { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+
+/* Modal */
+.modal-overlay { position:fixed; inset:0; background: rgba(26,39,68,.5); backdrop-filter: blur(4px); z-index:200; display:flex; align-items:center; justify-content:center; animation: fadeIn .2s ease; }
+.modal { background: var(--surface); border-radius: var(--radius); padding:28px; width:90%; max-width:560px; box-shadow: var(--shadow-lg); animation: slideUp .25s ease; max-height:85vh; overflow-y:auto; }
+.modal-wide { max-width:700px; }
+.modal h2 { font-family: 'Noto Serif SC', serif; font-size:20px; margin-bottom:20px; color: var(--navy); }
+.modal .form-group { margin-bottom:16px; }
+.modal .form-group label { display:block; font-size:13px; color: var(--slate); margin-bottom:6px; font-weight:500; }
+.modal .form-group input, .modal .form-group textarea, .modal .form-group select { width:100%; border:1px solid var(--border); border-radius: var(--radius-sm); padding:10px 14px; font-size:14px; font-family:inherit; outline:none; transition: var(--transition); }
+.modal .form-group textarea { resize:vertical; min-height:80px; }
+.modal .form-group input:focus, .modal .form-group textarea:focus, .modal .form-group select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(45,138,123,.1); }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+.monthly-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:10px; }
+.monthly-table th { text-align:left; padding:10px 8px; color: var(--slate); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.5px; border-bottom:2px solid var(--border); }
+.monthly-table td { padding:10px 8px; border-bottom:1px solid var(--border); color: var(--text); }
+.monthly-table tr:hover td { background: var(--surface-alt); }
+
+/* Voice Modal */
+.voice-mic-wrap { text-align:center; padding:30px 0; }
+.voice-mic { width:100px; height:100px; border-radius:50%; border:4px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; margin:0 auto; transition: var(--transition); font-size:40px; background: var(--surface); }
+.voice-mic:hover { border-color: var(--teal); transform:scale(1.05); }
+.voice-mic.recording { border-color: var(--coral); background: var(--coral-light); animation: pulse 1.5s infinite; }
+.voice-mic.recording:hover { border-color: var(--coral); }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(212,114,106,.4); } 50% { box-shadow: 0 0 0 20px rgba(212,114,106,0); } }
+.voice-status { margin-top:16px; font-size:14px; color: var(--text-secondary); }
+.voice-status.recording { color: var(--coral); font-weight:600; }
+.voice-text { margin-top:20px; background: var(--surface-alt); border-radius: var(--radius-sm); padding:16px; font-size:15px; line-height:1.8; min-height:60px; text-align:left; color: var(--text); }
+.voice-mode-toggle { display:flex; gap:4px; background: var(--slate-light); border-radius:20px; padding:3px; margin-bottom:16px; width:fit-content; margin-left:auto; margin-right:auto; }
+.voice-mode-btn { padding:8px 20px; border:none; background:transparent; border-radius:18px; font-size:13px; font-weight:500; cursor:pointer; color: var(--text-secondary); transition: var(--transition); font-family:inherit; }
+.voice-mode-btn.active { background: var(--surface); color: var(--navy); box-shadow: var(--shadow-sm); }
+
+/* Parse results */
+.parse-results { margin-top:16px; }
+.parse-item { display:flex; align-items:center; gap:10px; padding:10px 14px; background: var(--surface-alt); border-radius: var(--radius-sm); margin-bottom:8px; border:1px solid var(--border); cursor:pointer; transition: var(--transition); }
+.parse-item:hover { border-color: var(--teal); background: var(--teal-light); }
+.parse-item.selected { border-color: var(--teal); background: var(--teal-light); }
+.parse-item .parse-check { width:20px; height:20px; border:2px solid #d0d0d0; border-radius:4px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:transparent; }
+.parse-item.selected .parse-check { background: var(--teal); border-color: var(--teal); color:#fff; }
+.parse-item .parse-cat { font-size:11px; font-weight:600; padding:2px 8px; border-radius:10px; flex-shrink:0; }
+.parse-item .parse-text { flex:1; font-size:14px; }
+.parse-item .parse-edit { font-size:11px; color: var(--text-secondary); cursor:pointer; flex-shrink:0; }
+.parse-item .parse-edit:hover { color: var(--teal); }
+
+/* Folder results */
+.folder-file { display:flex; align-items:center; gap:8px; padding:6px 10px; font-size:13px; border-bottom:1px solid var(--border); }
+.folder-file:hover { background: var(--surface-alt); }
+.folder-file .file-icon { font-size:16px; flex-shrink:0; }
+
+/* Toast */
+.toast { position:fixed; top:24px; left:50%; transform:translateX(-50%); background: var(--navy); color:#fff; padding:12px 24px; border-radius:24px; font-size:14px; font-weight:500; z-index:9999; animation: toastIn .3s ease, toastOut .3s ease 2.2s forwards; box-shadow: var(--shadow-lg); }
+.toast.success { background: #1a7a3a; }
+.toast.error { background: var(--coral); }
+
+/* Floating voice button */
+.float-voice { position:fixed; bottom:32px; right:32px; width:60px; height:60px; border-radius:50%; background: var(--navy); color:#fff; border:none; cursor:pointer; box-shadow: 0 8px 24px rgba(26,39,68,.3); z-index:150; display:flex; align-items:center; justify-content:center; font-size:24px; transition: var(--transition); }
+.float-voice:hover { transform:scale(1.1); box-shadow: 0 12px 32px rgba(26,39,68,.4); background: var(--navy-light); }
+.float-voice .tooltip { position:absolute; right:72px; background: var(--navy); color:#fff; padding:6px 14px; border-radius:6px; font-size:13px; white-space:nowrap; opacity:0; pointer-events:none; transition: opacity .2s; }
+.float-voice:hover .tooltip { opacity:1; }
+
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(-16px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; } }
+
+/* Dark Mode */
+body.dark { --bg: #1a1d23; --surface: #252830; --surface-alt: #2a2d35; --navy: #0d1520; --navy-light: #1a2740; --teal: #4db8a8; --teal-light: #1a302d; --gold: #d4a84b; --gold-light: #2d2518; --coral: #e08078; --coral-light: #2d1818; --slate: #8a9aaa; --slate-light: #2a2d35; --border: #353840; --text: #d8dce0; --text-secondary: #8a939a; }
+body.dark .stat-card, body.dark .work-list, body.dark .quick-record, body.dark .sidebar-card, body.dark .panel-card, body.dark .modal { background: var(--surface); border-color: var(--border); }
+body.dark input, body.dark select, body.dark textarea { background: var(--surface-alt); color: var(--text); border-color: var(--border); }
+body.dark .work-item:hover, body.dark .todo-item:hover { background: var(--surface-alt); }
+body.dark .parse-item { background: var(--surface-alt); border-color: var(--border); }
+body.dark .parse-item:hover { background: var(--teal-light); }
+body.dark .voice-text { background: var(--surface-alt); }
+body.dark .monthly-table th { border-bottom-color: var(--border); }
+body.dark .monthly-table td { border-bottom-color: var(--border); }
+body.dark .monthly-table tr:hover td { background: var(--surface-alt); }
+body.dark .tab-switcher { background: var(--surface); }
+body.dark .btn-outline { border-color: var(--border); color: var(--text-secondary); }
+body.dark .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+body.dark .quick-search { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.1); }
+body.dark .quick-search:focus { background: rgba(255,255,255,.1); }
+body.dark .header { background: #0d1520; }
+body.dark .modal-overlay { background: rgba(0,0,0,.7); }
+body.dark .todo-check { border-color: #555; }
+body.dark .work-category:hover, body.dark .work-category.active { background: var(--slate-light); }
+.dark-toggle { background: none; border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.7); cursor: pointer; font-size: 18px; padding: 4px 8px; border-radius: 6px; transition: var(--transition); line-height: 1; }
+.dark-toggle:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+/* Mobile Bottom Navigation */
+.mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); z-index: 150; padding: 6px 0; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+.mobile-nav-inner { display: flex; justify-content: space-around; max-width: 500px; margin: 0 auto; }
+.mobile-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 12px; border: none; background: none; cursor: pointer; color: var(--text-secondary); font-size: 10px; font-family: inherit; transition: var(--transition); }
+.mobile-nav-item.active { color: var(--teal); }
+.mobile-nav-item .nav-icon { font-size: 20px; }
+.mobile-nav-item .nav-badge { background: var(--coral); color: #fff; border-radius: 10px; padding: 0 5px; font-size: 10px; min-width: 16px; text-align: center; position: absolute; top: 0; right: -8px; }
+
+@media (max-width:1200px) { .main-layout { grid-template-columns: 200px 1fr 280px; gap:14px; padding:14px 16px; } }
+@media (max-width:900px) {
+  .main-layout { grid-template-columns:1fr; padding: 14px 12px 80px; }
+  .sidebar, .right-panel { display:none; }
+  .stats-row { grid-template-columns: repeat(2,1fr); }
+  .header { padding:0 12px; }
+  .quick-search { display:none; }
+  .float-voice { bottom: 80px; right: 16px; width: 50px; height: 50px; font-size: 20px; }
+  .mobile-nav { display: block; }
+  .quick-record { flex-wrap: wrap; }
+  .quick-record input, .quick-record select { flex: 1 1 auto; min-width: 100px; }
+  .modal { width: 95%; padding: 20px; }
+  .modal-wide { width: 95%; }
+  .work-item { flex-wrap: wrap; }
+  .greeting { display: none; }
+  .header-left { gap: 8px; }
+  .logo { font-size: 16px; }
+}
+@media (max-width:480px) {
+  .stats-row { grid-template-columns: repeat(2,1fr); gap: 8px; }
+  .stat-card { padding: 12px 14px; }
+  .stat-card .stat-value { font-size: 24px; }
+  .btn { padding: 8px 14px; font-size: 13px; }
+  .tab-btn { padding: 8px 10px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <div class="logo">陶陶<span>·</span>工作台</div>
+    <div class="header-time">
+      <span class="date" id="headerDate"></span>
+      <span id="headerWeekday"></span>
+      <span id="headerTime" style="font-weight:500;color:rgba(255,255,255,.9)"></span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="dark-toggle" onclick="toggleDarkMode()" title="切换暗色模式" id="darkToggle">🌙</button>
+    <input class="quick-search" placeholder="搜索工作记录..." id="searchInput" oninput="renderCurrentView()">
+    <div class="greeting" id="greetingText"></div>
+  </div>
+</header>
+
+<div class="main-layout">
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h3>数字化平台</h3>
+      <a class="platform-link" href="https://1005236118-glitch.github.io/stroke-management/" target="_blank">
+        <span class="icon-box icon-stroke">🧠</span><span>专病管理系统</span>
+      </a>
+      <a class="platform-link" href="../ ISBAR 交班信息智能化整合工具/index.html" target="_blank">
+        <span class="icon-box icon-shift">🔄</span><span>智交班系统</span>
+      </a>
+      <a class="platform-link" href="#" onclick="openDataDashboard()">
+        <span class="icon-box icon-data">📊</span><span>数据看板</span>
+      </a>
+      <a class="platform-link" href="#" onclick="openMonthlyReport()">
+        <span class="icon-box icon-book">📋</span><span>月度汇总</span>
+      </a>
+      <a class="platform-link" href="#" onclick="openFolderPicker()">
+        <span class="icon-box icon-folder">📁</span><span>提取文件夹内容</span>
+      </a>
+    </div>
+    <div class="sidebar-card">
+      <h3>工作分类</h3>
+      <div class="work-category active" data-cat="all" onclick="filterByCategory('all',this)"><span class="dot" style="background:var(--navy)"></span> 全部记录 <span class="cat-count" id="catCountAll" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
+      <div class="work-category" data-cat="apn" onclick="filterByCategory('apn',this)"><span class="dot dot-apn"></span> APN工作 <span class="cat-count" id="catCountApn" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
+      <div class="work-category" data-cat="zhuanbing" onclick="filterByCategory('zhuanbing',this)"><span class="dot dot-zhuanbing"></span> 专病管理 <span class="cat-count" id="catCountZhuanbing" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
+      <div class="work-category" data-cat="biaozhun" onclick="filterByCategory('biaozhun',this)"><span class="dot dot-biaozhun"></span> 标准化/SOP <span class="cat-count" id="catCountBiaozhun" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
+      <div class="work-category" data-cat="keyan" onclick="filterByCategory('keyan',this)"><span class="dot dot-keyan"></span> 科研学术 <span class="cat-count" id="catCountKeyan" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
+      <div class="work-category" data-cat="bisai" onclick="filterByCategory('bisai',this)"><span class="dot dot-bisai"></span> 比赛活动 <span class="cat-count" id="catCountBisai" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
+      <div class="work-category" data-cat="gzh" onclick="filterByCategory('gzh',this)"><span class="dot dot-gzh"></span> 公众号内容 <span class="cat-count" id="catCountGzh" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
+      <div class="work-category" data-cat="qita" onclick="filterByCategory('qita',this)"><span class="dot dot-qita"></span> 其他工作 <span class="cat-count" id="catCountQita" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="tab-switcher">
+      <button class="tab-btn active" onclick="switchTab('records',this)">工作记录</button>
+      <button class="tab-btn" onclick="switchTab('todos',this)">待办事项 <span id="todoBadge" style="background:var(--coral);color:#fff;border-radius:10px;padding:1px 8px;font-size:11px;margin-left:4px;display:none;">0</span></button>
+    </div>
+
+    <div id="recordsView">
+      <div class="quick-record">
+        <input type="text" id="quickInput" placeholder="记录今天的工作内容..." onkeydown="if(event.key==='Enter')addRecord()">
+        <select id="quickCat">
+          <option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号</option><option value="qita">其他</option>
+        </select>
+        <input type="date" id="quickDate" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;font-family:inherit;outline:none;">
+        <button class="btn btn-primary" onclick="addRecord()">+ 记录</button>
+        <button class="btn btn-outline" onclick="openDetailModal()">详细记录</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">本月记录</div><div class="stat-value val-teal" id="statMonthCount">0</div><div class="stat-sub">条工作记录</div></div>
+        <div class="stat-card"><div class="stat-label">APN工作</div><div class="stat-value val-gold" id="statApnCount">0</div><div class="stat-sub">本月APN记录</div></div>
+        <div class="stat-card"><div class="stat-label">待办事项</div><div class="stat-value val-coral" id="statTodoCount">0</div><div class="stat-sub">未完成/已完成</div></div>
+        <div class="stat-card"><div class="stat-label">本月天数</div><div class="stat-value val-navy" id="statDays">0</div><div class="stat-sub">有记录的工作日</div></div>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div class="section-title">工作记录</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn btn-outline btn-sm" id="batchBtn" onclick="toggleBatchMode()" title="批量选择">☐ 批量</button>
+            <select id="monthFilter" onchange="renderRecords()" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 12px;font-size:12px;font-family:inherit;cursor:pointer;outline:none;"></select>
+            <button class="btn btn-outline btn-sm" onclick="exportMonthly()">导出本月</button>
+          </div>
+        </div>
+        <div id="batchActions" style="display:none;margin-bottom:10px;padding:8px 12px;background:var(--teal-light);border-radius:var(--radius-sm);align-items:center;gap:10px;font-size:13px;">
+          <span>已选 <strong id="batchCount" style="color:var(--teal);">0</strong> 条</span>
+          <button class="btn btn-sm btn-outline" onclick="batchDelete()">批量删除</button>
+          <button class="btn btn-sm btn-outline" onclick="toggleBatchMode()">取消</button>
+        </div>
+        <div class="work-list" id="workList"><div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">📝</div><div>还没有工作记录</div><div style="font-size:12px;color:#bbb;margin-top:4px;">在上方输入框快速记录，或点击右下角🎤语音输入</div></div></div>
+      </div>
+    </div>
+
+    <div id="todosView" style="display:none;">
+      <div class="quick-record">
+        <input type="text" id="todoInput" placeholder="添加待办事项..." onkeydown="if(event.key==='Enter')addTodo()">
+        <select id="todoCat">
+          <option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号</option><option value="qita">其他</option>
+        </select>
+        <input type="date" id="todoDate" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;font-family:inherit;outline:none;">
+        <button class="btn btn-primary" onclick="addTodo()">+ 待办</button>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div class="section-title">待办事项</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm" onclick="toggleShowDone()" id="showDoneBtn">显示已完成</button>
+          </div>
+        </div>
+        <div class="work-list" id="todoList"><div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">✅</div><div>暂无待办事项</div><div style="font-size:12px;color:#bbb;margin-top:4px;">点击右下角🎤语音规划今日工作</div></div></div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="right-panel">
+    <div class="panel-card">
+      <h3>本月APN课件进度</h3>
+      <div class="progress-bar-wrap"><div class="label"><span>工作记录收集</span><strong id="progCollect">0%</strong></div><div class="progress-bar"><div class="progress-fill fill-teal" id="progCollectBar" style="width:0%"></div></div></div>
+      <div class="progress-bar-wrap"><div class="label"><span>数据成效整理</span><strong id="progData">0%</strong></div><div class="progress-bar"><div class="progress-fill fill-gold" id="progDataBar" style="width:0%"></div></div></div>
+      <div class="progress-bar-wrap"><div class="label"><span>课件制作完成</span><strong id="progPpt">0%</strong></div><div class="progress-bar"><div class="progress-fill fill-coral" id="progPptBar" style="width:0%"></div></div></div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:8px;">每天记录一点，月底不再痛苦</div>
+    </div>
+    <div class="panel-card">
+      <h3>快捷工具</h3>
+      <div class="quick-link" onclick="openVoiceModal()"><span class="ql-icon" style="background:var(--coral-light)">🎤</span><span>语音输入（复盘/规划）</span></div>
+      <div class="quick-link" onclick="openDetailModal()"><span class="ql-icon" style="background:var(--teal-light)">📝</span><span>添加详细工作记录</span></div>
+      <div class="quick-link" onclick="openMonthlyReport()"><span class="ql-icon" style="background:var(--gold-light)">📊</span><span>生成本月汇总报告</span></div>
+      <div class="quick-link" onclick="openFolderPicker()"><span class="ql-icon" style="background:#fdf6e8">📁</span><span>提取文件夹内容</span></div>
+      <div class="quick-link" onclick="exportMonthly()"><span class="ql-icon" style="background:#e8f0fe">📥</span><span>导出Excel数据</span></div>
+    </div>
+    <div class="panel-card">
+      <h3>进行中的项目</h3>
+      <div style="font-size:13px;color:var(--text-secondary);line-height:2;">
+        <div>🔬 脑卒中科普图书</div>
+        <div>🏥 专病管理数字化平台</div>
+        <div>🔄 智交班系统优化</div>
+        <div>📋 标准化规范构建</div>
+        <div>🎯 中华护理学会投稿</div>
+      </div>
+    </div>
+    <div class="panel-card">
+      <h3>快捷键</h3>
+      <div style="font-size:12px;color:var(--text-secondary);line-height:2.2;">
+        <div><kbd style="background:var(--slate-light);padding:1px 6px;border-radius:3px;font-size:11px;">Ctrl+N</kbd> 新建记录</div>
+        <div><kbd style="background:var(--slate-light);padding:1px 6px;border-radius:3px;font-size:11px;">Ctrl+K</kbd> 搜索</div>
+        <div><kbd style="background:var(--slate-light);padding:1px 6px;border-radius:3px;font-size:11px;">Ctrl+D</kbd> 暗色模式</div>
+        <div><kbd style="background:var(--slate-light);padding:1px 6px;border-radius:3px;font-size:11px;">Ctrl+Shift+V</kbd> 语音输入</div>
+        <div><kbd style="background:var(--slate-light);padding:1px 6px;border-radius:3px;font-size:11px;">Esc</kbd> 关闭弹窗</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- Floating voice button -->
+<button class="float-voice" onclick="openVoiceModal()" title="语音输入">
+  <span class="tooltip">点击语音输入</span>
+  🎤
+</button>
+
+<!-- Mobile Bottom Navigation -->
+<nav class="mobile-nav" id="mobileNav">
+  <div class="mobile-nav-inner">
+    <button class="mobile-nav-item active" onclick="switchTab('records',document.querySelector('.tab-btn'))">
+      <span class="nav-icon">📋</span>记录
+    </button>
+    <button class="mobile-nav-item" onclick="switchTab('todos',document.querySelectorAll('.tab-btn')[1])">
+      <span class="nav-icon">✅</span>待办
+    </button>
+    <button class="mobile-nav-item" onclick="openVoiceModal()">
+      <span class="nav-icon">🎤</span>语音
+    </button>
+    <button class="mobile-nav-item" onclick="openMonthlyReport()">
+      <span class="nav-icon">📊</span>汇总
+    </button>
+    <button class="mobile-nav-item" onclick="toggleDarkMode()">
+      <span class="nav-icon" id="mobileDarkIcon">🌙</span>暗色
+    </button>
+  </div>
+</nav>
+
+<!-- ===== VOICE MODAL ===== -->
+<div class="modal-overlay" id="voiceModal" style="display:none" onclick="if(event.target===this)closeVoiceModal()">
+  <div class="modal modal-wide">
+    <h2>🎤 语音输入 <span style="font-size:13px;font-weight:400;color:var(--text-secondary);">— 逐条录音，边说边整理</span></h2>
+    <div class="voice-mode-toggle">
+      <button class="voice-mode-btn active" id="modeReview" onclick="setVoiceMode('review')">📋 复盘模式</button>
+      <button class="voice-mode-btn" id="modePlan" onclick="setVoiceMode('plan')">📝 规划模式</button>
+    </div>
+    <div class="voice-mic-wrap">
+      <div class="voice-mic" id="voiceMic" onclick="toggleRecording()">🎙️</div>
+      <div class="voice-status" id="voiceStatus">点击麦克风开始说第一条</div>
+    </div>
+    <div class="voice-text" id="voiceText" style="display:none;">等待语音输入...</div>
+    <div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-secondary);">
+      已识别 <strong id="voiceCount" style="color:var(--teal);">0</strong> 条 | 
+      <a href="#" onclick="event.preventDefault();undoLastVoiceItem()" style="color:var(--coral);text-decoration:none;">撤销上一条</a>
+    </div>
+    <div class="parse-results" id="parseResults" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="clearAllVoiceItems()">全部清空</button>
+      <button class="btn btn-primary" id="voiceSaveBtn" onclick="saveVoiceResults()" style="display:none;">确认并保存</button>
+      <button class="btn btn-outline" onclick="closeVoiceModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== EDIT MODAL ===== -->
+<div class="modal-overlay" id="editModal" style="display:none" onclick="if(event.target===this)closeEditModal()">
+  <div class="modal">
+    <h2>编辑工作记录</h2>
+    <input type="hidden" id="editId">
+    <div class="form-group"><label>工作分类</label><select id="editCat"><option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP构建</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号内容</option><option value="qita">其他</option></select></div>
+    <div class="form-group"><label>日期</label><input type="date" id="editDate"></div>
+    <div class="form-group"><label>工作标题</label><input type="text" id="editTitle" placeholder="简要描述工作内容"></div>
+    <div class="form-group"><label>详细内容</label><textarea id="editContent" placeholder="详细描述工作内容、数据成效、遇到的问题等..."></textarea></div>
+    <div class="form-group"><label>数据指标（如有）</label><input type="text" id="editData" placeholder="例：吞咽筛查率98%、患者满意度提升15%"></div>
+    <div class="form-group"><label>附件链接（如有）</label><input type="text" id="editLink" placeholder="相关文件路径或链接"></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeEditModal()">取消</button><button class="btn btn-primary" onclick="saveEditRecord()">保存修改</button></div>
+  </div>
+</div>
+
+<!-- ===== DETAIL MODAL ===== -->
+<div class="modal-overlay" id="detailModal" style="display:none" onclick="if(event.target===this)closeDetailModal()">
+  <div class="modal">
+    <h2>添加工作记录</h2>
+    <div class="form-group"><label>工作分类</label><select id="detailCat"><option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP构建</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号内容</option><option value="qita">其他</option></select></div>
+    <div class="form-group"><label>日期</label><input type="date" id="detailDate"></div>
+    <div class="form-group"><label>工作标题</label><input type="text" id="detailTitle" placeholder="简要描述工作内容"></div>
+    <div class="form-group"><label>详细内容</label><textarea id="detailContent" placeholder="详细描述工作内容、数据成效、遇到的问题等..."></textarea></div>
+    <div class="form-group"><label>数据指标（如有）</label><input type="text" id="detailData" placeholder="例：吞咽筛查率98%、患者满意度提升15%"></div>
+    <div class="form-group"><label>附件链接（如有）</label><input type="text" id="detailLink" placeholder="相关文件路径或链接"></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeDetailModal()">取消</button><button class="btn btn-primary" onclick="saveDetailRecord()">保存记录</button></div>
+  </div>
+</div>
+
+<!-- ===== TODO EDIT MODAL ===== -->
+<div class="modal-overlay" id="todoEditModal" style="display:none" onclick="if(event.target===this)closeTodoEditModal()">
+  <div class="modal">
+    <h2>编辑待办事项</h2>
+    <input type="hidden" id="todoEditId">
+    <div class="form-group"><label>分类</label><select id="todoEditCat"><option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP构建</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号内容</option><option value="qita">其他</option></select></div>
+    <div class="form-group"><label>日期</label><input type="date" id="todoEditDate"></div>
+    <div class="form-group"><label>内容</label><input type="text" id="todoEditTitle" placeholder="待办事项内容"></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeTodoEditModal()">取消</button><button class="btn btn-primary" onclick="saveTodoEdit()">保存修改</button></div>
+  </div>
+</div>
+
+<!-- ===== MONTHLY REPORT MODAL ===== -->
+<div class="modal-overlay" id="reportModal" style="display:none" onclick="if(event.target===this)closeReportModal()">
+  <div class="modal modal-wide"><h2>月度工作汇总报告</h2><div id="reportContent" style="max-height:60vh;overflow-y:auto;"><div style="text-align:center;padding:20px;color:var(--text-secondary);">加载中...</div></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="copyReport()">复制报告</button><button class="btn btn-primary" onclick="exportMonthly()">导出Excel</button><button class="btn btn-outline" onclick="closeReportModal()">关闭</button></div></div>
+</div>
+
+<!-- ===== DATA DASHBOARD MODAL ===== -->
+<div class="modal-overlay" id="dashboardModal" style="display:none" onclick="if(event.target===this)closeDashboardModal()">
+  <div class="modal modal-wide"><h2>数据成效看板</h2><div id="dashboardContent" style="max-height:60vh;overflow-y:auto;"><div style="text-align:center;padding:20px;color:var(--text-secondary);">加载中...</div></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeDashboardModal()">关闭</button></div></div>
+</div>
+
+<!-- ===== FOLDER PICKER MODAL ===== -->
+<div class="modal-overlay" id="folderModal" style="display:none" onclick="if(event.target===this)closeFolderModal()">
+  <div class="modal modal-wide"><h2>📁 提取文件夹内容</h2>
+    <div style="margin-bottom:16px;font-size:14px;color:var(--text-secondary);">选择桌面上的工作文件夹，系统将自动提取文件列表并分类。</div>
+    <div style="text-align:center;padding:20px;">
+      <button class="btn btn-primary" onclick="pickFolder()" style="font-size:16px;padding:14px 32px;">选择文件夹</button>
+    </div>
+    <div id="folderContent" style="max-height:40vh;overflow-y:auto;margin-top:16px;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="importFolderAsRecords()" id="folderImportBtn" style="display:none;">导入为工作记录</button>
+      <button class="btn btn-outline" onclick="closeFolderModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA STORES =====
+const RECORDS_KEY = 'taotao_workbench_records';
+const TODOS_KEY = 'taotao_workbench_todos';
+let records = JSON.parse(localStorage.getItem(RECORDS_KEY) || '[]');
+let todos = JSON.parse(localStorage.getItem(TODOS_KEY) || '[]');
+let currentFilter = 'all';
+let currentTab = 'records';
+let showDone = false;
+let voiceMode = 'review'; // 'review' | 'plan'
+let parsedItems = [];
+let folderFiles = [];
+let deletedRecord = null; // For undo delete
+let batchMode = false;
+let selectedIds = new Set();
+
+// ===== HELPERS =====
+function formatDate(d) { const date = new Date(d); return date.toISOString().split('T')[0]; }
+function getNow() { return new Date().toISOString(); }
+function getToday() { return formatDate(new Date()); }
+function getCurrentMonth() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+function escapeHtml(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+
+// ===== CATEGORY HELPERS =====
+function getCategoryTag(cat) {
+  const m = { apn:'tag-apn',zhuanbing:'tag-zhuanbing',biaozhun:'tag-biaozhun',keyan:'tag-keyan',bisai:'tag-bisai',gzh:'tag-gzh',qita:'tag-qita' };
+  return m[cat]||'tag-qita';
+}
+function getCategoryName(cat) {
+  const m = { apn:'APN工作',zhuanbing:'专病管理',biaozhun:'标准化/SOP',keyan:'科研学术',bisai:'比赛活动',gzh:'公众号',qita:'其他' };
+  return m[cat]||cat;
+}
+
+// ===== HEADER CLOCK =====
+function updateClock() {
+  const now = new Date();
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('headerWeekday').textContent = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'][now.getDay()];
+  document.getElementById('headerTime').textContent = now.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const h = now.getHours();
+  let g = h>=12&&h<18?'下午好':(h>=18?'晚上好':'早上好');
+  document.getElementById('greetingText').innerHTML = `${g}，<strong>陶陶</strong>`;
+}
+setInterval(updateClock,1000); updateClock();
+
+// ===== DARK MODE =====
+function toggleDarkMode() {
+  document.body.classList.toggle('dark');
+  const isDark = document.body.classList.contains('dark');
+  localStorage.setItem('taotao_dark_mode', isDark ? '1' : '0');
+  document.getElementById('darkToggle').textContent = isDark ? '☀️' : '🌙';
+  const mobileIcon = document.getElementById('mobileDarkIcon');
+  if (mobileIcon) mobileIcon.textContent = isDark ? '☀️' : '🌙';
+}
+(function initDarkMode() {
+  if (localStorage.getItem('taotao_dark_mode') === '1') {
+    document.body.classList.add('dark');
+    document.getElementById('darkToggle').textContent = '☀️';
+    const mobileIcon = document.getElementById('mobileDarkIcon');
+    if (mobileIcon) mobileIcon.textContent = '☀️';
+  }
+})();
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+    // Allow Ctrl+K to focus search even when in input
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('searchInput').focus();
+    }
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  } else if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+    e.preventDefault();
+    if (currentTab === 'records') openDetailModal();
+    else document.getElementById('todoInput').focus();
+  } else if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+    e.preventDefault();
+    toggleDarkMode();
+  } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'V') {
+    e.preventDefault();
+    openVoiceModal();
+  } else if (e.key === 'Escape') {
+    closeAllModals();
+  }
+});
+
+function closeAllModals() {
+  document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+  if (isRecording && recognition) { recognitionStopped = true; isRecording = false; recognition.stop(); }
+  resetRecordingUI();
+}
+
+document.getElementById('quickDate').value = getToday();
+document.getElementById('detailDate').value = getToday();
+document.getElementById('todoDate').value = getToday();
+
+// ===== TAB SWITCH =====
+function switchTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('recordsView').style.display = tab === 'records' ? 'block' : 'none';
+  document.getElementById('todosView').style.display = tab === 'todos' ? 'block' : 'none';
+  // Update mobile nav
+  document.querySelectorAll('#mobileNav .mobile-nav-item').forEach((item, i) => {
+    item.classList.remove('active');
+    if ((tab === 'records' && i === 0) || (tab === 'todos' && i === 1)) item.classList.add('active');
+  });
+  if (tab === 'records') renderRecords();
+  else renderTodos();
+}
+
+// ===== WORK RECORDS =====
+function addRecord() {
+  const input = document.getElementById('quickInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const cat = document.getElementById('quickCat').value;
+  const date = document.getElementById('quickDate').value || getToday();
+  records.unshift({ id: Date.now(), title: text, content: '', category: cat, date, time: getNow(), data: '', link: '' });
+  saveRecords();
+  input.value = '';
+  showToast('记录已保存');
+  renderAll();
+}
+
+function saveDetailRecord() {
+  const title = document.getElementById('detailTitle').value.trim();
+  if (!title) { showToast('请输入工作标题','error'); return; }
+  records.unshift({ id: Date.now(), title, content: document.getElementById('detailContent').value.trim(), category: document.getElementById('detailCat').value, date: document.getElementById('detailDate').value || getToday(), time: getNow(), data: document.getElementById('detailData').value.trim(), link: document.getElementById('detailLink').value.trim() });
+  saveRecords();
+  closeDetailModal();
+  showToast('详细记录已保存');
+  renderAll();
+}
+
+function deleteRecord(id) {
+  const idx = records.findIndex(r => r.id === id);
+  if (idx === -1) return;
+  deletedRecord = records.splice(idx, 1)[0];
+  saveRecords();
+  renderAll();
+  showUndoToast('记录已删除', () => {
+    records.splice(idx, 0, deletedRecord);
+    deletedRecord = null;
+    saveRecords();
+    renderAll();
+    showToast('已恢复');
+  });
+}
+
+function openEditModal(id) {
+  const r = records.find(r => r.id === id);
+  if (!r) return;
+  document.getElementById('editId').value = r.id;
+  document.getElementById('editCat').value = r.category;
+  document.getElementById('editDate').value = r.date || getToday();
+  document.getElementById('editTitle').value = r.title || '';
+  document.getElementById('editContent').value = r.content || '';
+  document.getElementById('editData').value = r.data || '';
+  document.getElementById('editLink').value = r.link || '';
+  document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').style.display = 'none';
+}
+
+function saveEditRecord() {
+  const id = parseInt(document.getElementById('editId').value);
+  const r = records.find(r => r.id === id);
+  if (!r) return;
+  const title = document.getElementById('editTitle').value.trim();
+  if (!title) { showToast('请输入工作标题','error'); return; }
+  r.category = document.getElementById('editCat').value;
+  r.date = document.getElementById('editDate').value || getToday();
+  r.title = title;
+  r.content = document.getElementById('editContent').value.trim();
+  r.data = document.getElementById('editData').value.trim();
+  r.link = document.getElementById('editLink').value.trim();
+  saveRecords();
+  closeEditModal();
+  showToast('修改已保存');
+  renderAll();
+}
+
+function saveRecords() { localStorage.setItem(RECORDS_KEY, JSON.stringify(records)); }
+
+function filterByCategory(cat, el) {
+  currentFilter = cat;
+  document.querySelectorAll('.work-category').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderCurrentView();
+}
+
+function renderRecords() {
+  const container = document.getElementById('workList');
+  const searchText = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const monthFilter = document.getElementById('monthFilter')?.value || '';
+  let filtered = records;
+  if (currentFilter !== 'all') filtered = filtered.filter(r => r.category === currentFilter);
+  if (searchText) filtered = filtered.filter(r => (r.title||'').toLowerCase().includes(searchText)||(r.content||'').toLowerCase().includes(searchText)||(r.data||'').toLowerCase().includes(searchText));
+  if (monthFilter) filtered = filtered.filter(r => (r.date||'').startsWith(monthFilter));
+  if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">📝</div><div>暂无匹配的工作记录</div></div>'; return; }
+  container.innerHTML = filtered.map(r => `
+    <div class="work-item">
+      ${batchMode ? `<div class="todo-check${selectedIds.has(r.id)?' done':''}" onclick="event.stopPropagation();toggleSelectRecord(${r.id})" style="flex-shrink:0">${selectedIds.has(r.id)?'✓':''}</div>` : ''}
+      <span class="time-badge">${r.date||''}</span>
+      <span class="cat-tag ${getCategoryTag(r.category)}">${getCategoryName(r.category)}</span>
+      <span class="work-text" style="cursor:pointer" onclick="${batchMode ? `toggleSelectRecord(${r.id})` : `openEditModal(${r.id})`}" title="${batchMode ? '点击选择' : '点击编辑'}">
+        <strong>${escapeHtml(r.title)}</strong>
+        ${r.content?`<br><span style="font-size:12px;color:var(--text-secondary)">${escapeHtml(r.content.substring(0,80))}${r.content.length>80?'...':''}</span>`:''}
+        ${r.data?`<br><span style="font-size:12px;color:var(--teal)">📊 ${escapeHtml(r.data)}</span>`:''}
+      </span>
+      ${r.link?`<a href="${escapeHtml(r.link)}" target="_blank" style="font-size:12px;color:var(--teal);text-decoration:none;flex-shrink:0">🔗</a>`:''}
+      <button class="delete-btn" onclick="event.stopPropagation();deleteRecord(${r.id})" title="删除">×</button>
+    </div>`).join('');
+  updateBatchUI();
+}
+
+// ===== BATCH OPERATIONS =====
+function toggleBatchMode() {
+  batchMode = !batchMode;
+  selectedIds.clear();
+  document.getElementById('batchBtn').textContent = batchMode ? '☑ 取消批量' : '☐ 批量';
+  document.getElementById('batchActions').style.display = batchMode ? 'flex' : 'none';
+  renderRecords();
+}
+
+function toggleSelectRecord(id) {
+  if (selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+  updateBatchUI();
+  renderRecords();
+}
+
+function updateBatchUI() {
+  if (!batchMode) return;
+  document.getElementById('batchCount').textContent = selectedIds.size;
+}
+
+function batchDelete() {
+  if (selectedIds.size === 0) { showToast('请先选择记录','error'); return; }
+  const count = selectedIds.size;
+  records = records.filter(r => !selectedIds.has(r.id));
+  saveRecords();
+  selectedIds.clear();
+  batchMode = false;
+  document.getElementById('batchBtn').textContent = '☐ 批量';
+  document.getElementById('batchActions').style.display = 'none';
+  renderAll();
+  showToast(`已删除 ${count} 条记录`);
+}
+
+// ===== TODOS =====
+function addTodo() {
+  const input = document.getElementById('todoInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const cat = document.getElementById('todoCat').value;
+  const date = document.getElementById('todoDate').value || getToday();
+  todos.unshift({ id: Date.now(), title: text, category: cat, date, time: getNow(), done: false });
+  saveTodos();
+  input.value = '';
+  showToast('待办已添加');
+  renderAll();
+}
+
+function toggleTodo(id) {
+  const todo = todos.find(t => t.id === id);
+  if (!todo) return;
+  todo.done = !todo.done;
+  if (todo.done) {
+    todo.doneTime = getNow();
+    // Auto-convert to work record
+    records.unshift({
+      id: Date.now() + 1,
+      title: todo.title,
+      content: '',
+      category: todo.category,
+      date: todo.date || getToday(),
+      time: getNow(),
+      data: '',
+      link: '',
+      fromTodo: true
+    });
+    saveRecords();
+    showToast('已完成并自动归档为工作记录');
+  }
+  saveTodos();
+  renderAll();
+}
+
+function deleteTodo(id) {
+  todos = todos.filter(t => t.id !== id);
+  saveTodos();
+  renderAll();
+}
+
+function toggleShowDone() {
+  showDone = !showDone;
+  document.getElementById('showDoneBtn').textContent = showDone ? '隐藏已完成' : '显示已完成';
+  renderTodos();
+}
+
+function saveTodos() { localStorage.setItem(TODOS_KEY, JSON.stringify(todos)); }
+
+// ===== TODO EDITING =====
+function openTodoEditModal(id) {
+  const t = todos.find(t => t.id === id);
+  if (!t) return;
+  document.getElementById('todoEditId').value = t.id;
+  document.getElementById('todoEditCat').value = t.category;
+  document.getElementById('todoEditDate').value = t.date || getToday();
+  document.getElementById('todoEditTitle').value = t.title || '';
+  document.getElementById('todoEditModal').style.display = 'flex';
+}
+function closeTodoEditModal() { document.getElementById('todoEditModal').style.display = 'none'; }
+function saveTodoEdit() {
+  const id = parseInt(document.getElementById('todoEditId').value);
+  const t = todos.find(t => t.id === id);
+  if (!t) return;
+  const title = document.getElementById('todoEditTitle').value.trim();
+  if (!title) { showToast('请输入待办内容','error'); return; }
+  t.category = document.getElementById('todoEditCat').value;
+  t.date = document.getElementById('todoEditDate').value || getToday();
+  t.title = title;
+  saveTodos();
+  closeTodoEditModal();
+  showToast('待办已更新');
+  renderAll();
+}
+
+function renderTodos() {
+  const container = document.getElementById('todoList');
+  let filtered = todos;
+  if (!showDone) filtered = filtered.filter(t => !t.done);
+  if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">✅</div><div>暂无待办事项</div><div style="font-size:12px;color:#bbb;margin-top:4px;">点击右下角🎤语音规划今日工作</div></div>'; renderTodoBadge(); return; }
+  container.innerHTML = filtered.map(t => `
+    <div class="todo-item">
+      <div class="todo-check${t.done?' done':''}" onclick="toggleTodo(${t.id})">${t.done?'✓':''}</div>
+      <span class="todo-text${t.done?' done':''}" style="cursor:pointer" onclick="openTodoEditModal(${t.id})" title="点击编辑">${escapeHtml(t.title)}</span>
+      <span class="todo-cat ${getCategoryTag(t.category)}">${getCategoryName(t.category)}</span>
+      <span style="font-size:11px;color:var(--text-secondary);flex-shrink:0">${t.date||''}</span>
+      <div class="todo-actions"><button onclick="event.stopPropagation();openTodoEditModal(${t.id})">编辑</button><button onclick="event.stopPropagation();deleteTodo(${t.id})">删除</button></div>
+    </div>`).join('');
+  renderTodoBadge();
+}
+
+function renderTodoBadge() {
+  const pending = todos.filter(t => !t.done).length;
+  const badge = document.getElementById('todoBadge');
+  if (pending > 0) { badge.style.display = 'inline'; badge.textContent = pending; }
+  else { badge.style.display = 'none'; }
+}
+
+// ===== RENDER ALL =====
+function renderCurrentView() {
+  if (currentTab === 'records') renderRecords();
+  else renderTodos();
+}
+
+function renderStats() {
+  const now = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const monthRecords = records.filter(r => (r.date||'').startsWith(thisMonth));
+  document.getElementById('statMonthCount').textContent = monthRecords.length;
+  document.getElementById('statApnCount').textContent = monthRecords.filter(r => r.category==='apn').length;
+  document.getElementById('statTodoCount').textContent = `${todos.filter(t=>!t.done).length}/${todos.filter(t=>t.done).length}`;
+  const uniqueDays = new Set(monthRecords.map(r => r.date)).size;
+  document.getElementById('statDays').textContent = uniqueDays;
+  const totalDays = Math.min(new Date(now.getFullYear(), now.getMonth()+1, 0).getDate(), now.getDate());
+  const collectPct = Math.min(100, Math.round((uniqueDays/Math.max(totalDays,1))*100));
+  const dataPct = Math.min(100, Math.round((monthRecords.filter(r=>r.data).length/Math.max(monthRecords.length,1))*100));
+  const pptPct = Math.max(0, Math.round(collectPct*0.6+dataPct*0.4));
+  document.getElementById('progCollect').textContent = collectPct+'%';
+  document.getElementById('progCollectBar').style.width = collectPct+'%';
+  document.getElementById('progData').textContent = dataPct+'%';
+  document.getElementById('progDataBar').style.width = dataPct+'%';
+  document.getElementById('progPpt').textContent = pptPct+'%';
+  document.getElementById('progPptBar').style.width = pptPct+'%';
+}
+
+function populateMonthFilter() {
+  const months = new Set();
+  records.forEach(r => { if (r.date) months.add(r.date.substring(0,7)); });
+  const select = document.getElementById('monthFilter');
+  select.innerHTML = '<option value="">全部月份</option>'+[...months].sort().reverse().map(m => `<option value="${m}">${m}</option>`).join('');
+  select.value = getCurrentMonth();
+}
+
+function renderAll() {
+  renderCurrentView();
+  renderStats();
+  populateMonthFilter();
+  renderTodoBadge();
+  renderCategoryCounts();
+}
+
+function renderCategoryCounts() {
+  const thisMonth = getCurrentMonth();
+  const monthRecords = records.filter(r => (r.date||'').startsWith(thisMonth));
+  document.getElementById('catCountAll').textContent = monthRecords.length;
+  ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','qita'].forEach(cat => {
+    const el = document.getElementById('catCount' + cat.charAt(0).toUpperCase() + cat.slice(1));
+    if (el) el.textContent = monthRecords.filter(r => r.category === cat).length;
+  });
+}
+
+// ===== SMART CATEGORIZATION ENGINE =====
+function smartClassify(text) {
+  const lower = text.toLowerCase();
+  const rules = [
+    { cat:'apn', keywords: ['apn','汇报','课件','月度','工作汇总','数据成效','专病管理','培训','护理查房','教学查房','工作计划','年度总结','十佳护士','专科护士','继教','授课','季度汇报','工作汇报','工作流程','工作职责','护理门诊','全程管理','实践探索','高级实践','护士座谈会','周质量','疑难病例','病例讨论','患者认可','锦旗','感谢信','质量反馈','满意度','随访','出院','宣教','患教','健康管理师','脑心健康管理师','营养','筛查率','达标率','护理质量','质量指标','敏感指标','过程指标','结局指标','日常工作','工作内容','完成','做了','做完了','进行了','参加了','组织了','开展了','召开了','举行'] },
+    { cat:'zhuanbing', keywords: ['专病','数字化','平台','系统','pwa','网页','h5','卒中','脑卒中','脑血管','帕金森','癫痫','肌张力','仑卡','认知障碍','重症肌无力','眩晕','全生命周期','体外反搏','颈动脉斑块','患者旅程','管理系统','前哨','预警','sop','处理流程','评估工具','评分卡','8+2','nrs','洼田','vvst','吞咽','营养风险','跌倒','坠床','压力性损伤','vte','静脉血栓','改良','口腔','入院筛查','出院','患者档案','个案管理','专病管理方案','个性化','管理方案','信息共享','医护患','电子化','his','数据收集','无纸化','指标','监测','数据统计','阶段成果','蓝图','建设'] },
+    { cat:'biaozhun', keywords: ['标准','规范','sop','流程','标准化','循证','指南','团标','团体标准','共识','行业标准','专家共识','证据','文献','查阅','检索','meta','系统评价','rct','随机对照','病例对照','队列研究','修订','更新','制定','构建','输注','单抗','药物','药品','说明书','注意事项','操作步骤','配置','溶媒','浓度','过敏','急救','并发症','处理','质量评价','质量安全','安全注射','身份识别','空气净化','感染控制','医院感染','手卫生','pdca','质量改善','质量改进','品管圈','casp','checklist','评价','量表','评估表','流程优化','流程再造','方案','路径','临床路径','护理路径'] },
+    { cat:'keyan', keywords: ['科研','论文','投稿','发表','期刊','杂志','中华','护理','项目书','申报','课题','伦理','专利','申请','结题','数据收集','统计','分析','spss','方法','结果','讨论','结论','摘要','关键词','参考文献','文献综述','综述','研究','调查','科普','图书','书籍','书稿','撰稿','审稿','修改','录用','毕业','研究生','硕士','论文答辩','开题','中期','报告','学术会议','大会发言','壁报','海报','投稿','征文','读书报告','sci','核心期刊','统计源','创新','设计','实施','评价','验证','应用','效果','成效','差异','显著','实验组','对照组','干预','方案','读后感','反思','复盘'] },
+    { cat:'bisai', keywords: ['比赛','竞赛','案例','案例比赛','科普比赛','演讲','汇报','护理管理','品管圈','qcc','创新','金点子','极致服务','十佳','优秀','评选','竞聘','副护士长','护士长','荣誉','奖项','获奖','省级','国家级','市级','院级','选手','参赛','评比','展示','作品','提交','截止','改','修改','反馈','领导','批注','审核','通过','ppt','幻灯片','课件','制作','美化','版式','模板','配色','排版','讲稿','发言稿','演讲稿','演讲','演示','播放','试讲','排练','预演'] },
+    { cat:'gzh', keywords: ['公众号','推文','微信','推文','宣传','发布','文案','推文','阅读量','点击','转发','在看','点赞','评论','粉丝','关注','编辑','排版','配图','封面','标题','摘要','图文','h5','内网','外网','官网','公告','通知','义诊','新闻','报道','通讯','人物','专访','事迹','故事','案例','96岁','生命奇迹','中风','识别','急救','befast','中风120','就诊指南','旌北','五代医院','融合','破壁','晨学','赋能','复盘','提质','专业能力','提升','专科','培训','会议','学会','发言','分享','交流','会议纪要','简报','简讯','通讯稿','通讯'] },
+    { cat:'qita', keywords: ['报销','保险','出生证','户口本','身份证','银行卡','报名','考试','准考证','证书','毕业','学位','学分','继教','学分','会议','签到','注册','餐饮','住宿','交通','出差','外出','学习','进修','参观','访问','交流','新加坡','西安','华西','川北','成都','绵竹','德阳','医院','科室','人员','拍照','工作照','简介','简历','履历','述职','竞聘','面试','表格','模板','格式','合作','协调','沟通','对接','联系','安排','通知','提醒','备忘','记录','登记','签到','签退','考勤','排班','调班','补休','请假','加班','夜班','倒计时'] }
+  ];
+  let bestCat = 'qita', bestScore = 0;
+  rules.forEach(rule => {
+    let score = 0;
+    rule.keywords.forEach(kw => { if (lower.includes(kw.toLowerCase())) score++; });
+    if (score > bestScore) { bestScore = score; bestCat = rule.cat; }
+  });
+  return bestCat;
+}
+
+function extractData(text) {
+  const patterns = [
+    /(\d{1,3}(?:\.\d{1,2})?\s*%)/g,
+    /(\d+次)/g,
+    /(\d+人)/g,
+    /(\d+例)/g,
+    /(\d+条)/g,
+    /(\d+篇)/g,
+    /(\d+份)/g,
+    /(\d+张)/g,
+    /(\d+个)/g,
+    /(阅读量\s*\d+)/g,
+    /(满意度\s*\d{1,3}(?:\.\d{1,2})?\s*%)/g,
+    /(筛查率\s*\d{1,3}(?:\.\d{1,2})?\s*%)/g,
+    /(达标率\s*\d{1,3}(?:\.\d{1,2})?\s*%)/g,
+    /(完成\s*\d{1,3}(?:\.\d{1,2})?\s*%)/g,
+  ];
+  let found = [];
+  patterns.forEach(p => {
+    const matches = text.match(p);
+    if (matches) found = found.concat(matches);
+  });
+  return [...new Set(found)].join('，');
+}
+
+function parseVoiceText(text) {
+  // Split by common delimiters
+  const sentences = text
+    .split(/[。！？；\n,，、]/)
+    .map(s => s.trim())
+    .filter(s => s.length > 1);
+
+  if (sentences.length === 0 && text.trim().length > 1) {
+    sentences.push(text.trim());
+  }
+
+  return sentences.map(s => ({
+    text: s,
+    category: smartClassify(s),
+    data: extractData(s)
+  }));
+}
+
+// ===== VOICE RECOGNITION (Segment-by-Segment) =====
+let recognition = null;
+let isRecording = false;
+let recognitionStopped = false; // Prevent double processing
+
+function initRecognition() {
+  if (recognition) return;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showToast('您的浏览器不支持语音识别，请使用Chrome浏览器','error');
+    return;
+  }
+  recognition = new SpeechRecognition();
+  recognition.lang = 'zh-CN';
+  recognition.interimResults = true;
+  recognition.continuous = false; // Single segment mode
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = (event) => {
+    let finalText = '';
+    let interimText = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        finalText += event.results[i][0].transcript;
+      } else {
+        interimText += event.results[i][0].transcript;
+      }
+    }
+    const displayText = finalText || interimText;
+    document.getElementById('voiceText').style.display = 'block';
+    document.getElementById('voiceText').innerHTML = displayText || '正在聆听...';
+    if (finalText) {
+      document.getElementById('voiceText').setAttribute('data-final', finalText);
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.error('Speech error:', event.error);
+    if (event.error === 'no-speech') {
+      document.getElementById('voiceStatus').textContent = '未检测到语音，请点击麦克风重试';
+    } else if (event.error === 'not-allowed') {
+      showToast('请允许麦克风权限','error');
+    } else if (event.error === 'audio-capture') {
+      showToast('未检测到麦克风设备','error');
+    } else if (event.error === 'network') {
+      showToast('网络连接失败，语音识别需要网络','error');
+    }
+    // Always reset UI on error
+    resetRecordingUI();
+  };
+
+  recognition.onend = () => {
+    // Only process if not already stopped manually
+    if (!recognitionStopped) {
+      processVoiceSegment();
+    }
+    recognitionStopped = false;
+    resetRecordingUI();
+  };
+}
+
+function toggleRecording() {
+  initRecognition();
+  if (!recognition) return;
+
+  if (isRecording) {
+    // Stop current segment - mark as manually stopped
+    recognitionStopped = true;
+    isRecording = false;
+    recognition.stop();
+    // Process the segment immediately since onend won't process it
+    processVoiceSegment();
+  } else {
+    // Start new segment
+    recognitionStopped = false;
+    isRecording = true;
+    document.getElementById('voiceText').style.display = 'block';
+    document.getElementById('voiceText').setAttribute('data-final','');
+    document.getElementById('voiceText').innerHTML = '🎧 正在聆听...';
+    document.getElementById('voiceStatus').textContent = '录音中，说完点击麦克风停止';
+    document.getElementById('voiceStatus').classList.add('recording');
+    document.getElementById('voiceMic').classList.add('recording');
+    document.getElementById('voiceMic').textContent = '🔴';
+    try { recognition.start(); } catch(e) { console.error(e); }
+  }
+}
+
+function processVoiceSegment() {
+  const finalText = document.getElementById('voiceText').getAttribute('data-final') || '';
+  if (finalText.trim()) {
+    const newItems = parseVoiceText(finalText);
+    parsedItems = parsedItems.concat(newItems);
+    renderParsedItems();
+    document.getElementById('voiceSaveBtn').style.display = 'inline-block';
+    document.getElementById('voiceCount').textContent = parsedItems.length;
+    document.getElementById('voiceStatus').textContent = `已识别 ${parsedItems.length} 条，点击麦克风继续说下一条`;
+  }
+}
+
+function resetRecordingUI() {
+  isRecording = false;
+  document.getElementById('voiceStatus').classList.remove('recording');
+  document.getElementById('voiceMic').classList.remove('recording');
+  document.getElementById('voiceMic').textContent = '🎙️';
+  if (parsedItems.length === 0) {
+    document.getElementById('voiceStatus').textContent = '点击麦克风开始说第一条';
+  } else {
+    document.getElementById('voiceStatus').textContent = `已识别 ${parsedItems.length} 条，点击麦克风继续说下一条`;
+  }
+}
+
+function renderParsedItems() {
+  const container = document.getElementById('parseResults');
+  container.style.display = 'block';
+  if (parsedItems.length === 0) {
+    container.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;">等待语音输入...</div>';
+    return;
+  }
+  container.innerHTML = `
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px;">
+      ${voiceMode==='review'?'智能识别为以下工作记录（点击可调整分类，点击条目取消选中）：':'智能识别为以下待办事项（点击可调整分类）：'}
+    </div>
+    ${parsedItems.map((item,i) => `
+      <div class="parse-item selected" onclick="toggleParseItem(${i},this)" data-idx="${i}">
+        <div class="parse-check">✓</div>
+        <span class="parse-cat ${getCategoryTag(item.category)}">${getCategoryName(item.category)}</span>
+        <span class="parse-text">${escapeHtml(item.text)}</span>
+        <span class="parse-edit" onclick="event.stopPropagation();cycleCategory(${i})">🔄</span>
+      </div>
+    `).join('')}
+  `;
+  document.getElementById('voiceCount').textContent = parsedItems.length;
+  document.getElementById('voiceSaveBtn').style.display = parsedItems.length > 0 ? 'inline-block' : 'none';
+}
+
+function toggleParseItem(idx, el) {
+  el.classList.toggle('selected');
+}
+
+function cycleCategory(idx) {
+  const cats = ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','qita'];
+  const current = cats.indexOf(parsedItems[idx].category);
+  parsedItems[idx].category = cats[(current + 1) % cats.length];
+  renderParsedItems();
+}
+
+function undoLastVoiceItem() {
+  if (parsedItems.length === 0) return;
+  parsedItems.pop();
+  renderParsedItems();
+  if (parsedItems.length === 0) {
+    document.getElementById('voiceSaveBtn').style.display = 'none';
+    document.getElementById('voiceStatus').textContent = '点击麦克风开始说第一条';
+  }
+}
+
+function clearAllVoiceItems() {
+  parsedItems = [];
+  document.getElementById('voiceText').style.display = 'none';
+  document.getElementById('voiceText').setAttribute('data-final','');
+  document.getElementById('voiceText').innerHTML = '';
+  document.getElementById('parseResults').style.display = 'none';
+  document.getElementById('parseResults').innerHTML = '';
+  document.getElementById('voiceSaveBtn').style.display = 'none';
+  document.getElementById('voiceCount').textContent = '0';
+  document.getElementById('voiceStatus').textContent = '点击麦克风开始说第一条';
+}
+
+function saveVoiceResults() {
+  const selectedItems = [];
+  document.querySelectorAll('.parse-item.selected').forEach(el => {
+    const idx = parseInt(el.getAttribute('data-idx'));
+    if (idx >= 0 && idx < parsedItems.length) selectedItems.push(parsedItems[idx]);
+  });
+
+  if (selectedItems.length === 0) { showToast('请至少选择一条记录','error'); return; }
+
+  const today = getToday();
+  if (voiceMode === 'review') {
+    selectedItems.forEach(item => {
+      records.unshift({
+        id: Date.now() + Math.random(),
+        title: item.text,
+        content: '',
+        category: item.category,
+        date: today,
+        time: getNow(),
+        data: item.data || '',
+        link: ''
+      });
+    });
+    saveRecords();
+    showToast(`已保存 ${selectedItems.length} 条工作记录`);
+  } else {
+    selectedItems.forEach(item => {
+      todos.unshift({
+        id: Date.now() + Math.random(),
+        title: item.text,
+        category: item.category,
+        date: today,
+        time: getNow(),
+        done: false
+      });
+    });
+    saveTodos();
+    showToast(`已生成 ${selectedItems.length} 条待办事项`);
+  }
+
+  clearAllVoiceItems();
+  closeVoiceModal();
+  renderAll();
+}
+
+function setVoiceMode(mode) {
+  voiceMode = mode;
+  document.getElementById('modeReview').classList.toggle('active', mode === 'review');
+  document.getElementById('modePlan').classList.toggle('active', mode === 'plan');
+  clearAllVoiceItems();
+}
+
+function openVoiceModal() {
+  document.getElementById('voiceModal').style.display = 'flex';
+  clearAllVoiceItems();
+  initRecognition();
+}
+function closeVoiceModal() {
+  if (isRecording) { recognitionStopped = true; isRecording = false; if (recognition) recognition.stop(); }
+  resetRecordingUI();
+  document.getElementById('voiceModal').style.display = 'none';
+}
+
+// ===== FOLDER PICKER =====
+let folderHandle = null;
+
+async function openFolderPicker() {
+  document.getElementById('folderModal').style.display = 'flex';
+  document.getElementById('folderContent').innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);">点击下方按钮选择文件夹</div>';
+  document.getElementById('folderImportBtn').style.display = 'none';
+}
+
+async function pickFolder() {
+  try {
+    folderHandle = await window.showDirectoryPicker();
+    folderFiles = [];
+    await scanFolder(folderHandle, '');
+    renderFolderContent();
+    document.getElementById('folderImportBtn').style.display = 'inline-block';
+  } catch(e) {
+    if (e.name !== 'AbortError') {
+      document.getElementById('folderContent').innerHTML = `<div style="color:var(--coral);text-align:center;padding:20px;">读取失败：${e.message}</div>`;
+    }
+  }
+}
+
+async function scanFolder(dirHandle, path) {
+  for await (const [name, handle] of dirHandle.entries()) {
+    const fullPath = path ? path + '/' + name : name;
+    if (handle.kind === 'file') {
+      folderFiles.push({ name, path: fullPath, kind: 'file' });
+    } else if (handle.kind === 'directory') {
+      folderFiles.push({ name, path: fullPath, kind: 'folder' });
+    }
+  }
+}
+
+function renderFolderContent() {
+  const container = document.getElementById('folderContent');
+  const fileCount = folderFiles.filter(f => f.kind === 'file').length;
+  const folderCount = folderFiles.filter(f => f.kind === 'folder').length;
+  let html = `<div style="margin-bottom:12px;font-size:13px;color:var(--text-secondary);">📁 ${folderCount} 个文件夹，📄 ${fileCount} 个文件</div>`;
+  folderFiles.forEach(f => {
+    const icon = f.kind === 'folder' ? '📁' : getFileIcon(f.name);
+    html += `<div class="folder-file"><span class="file-icon">${icon}</span><span>${escapeHtml(f.name)}</span><span style="margin-left:auto;font-size:11px;color:var(--text-secondary);">${escapeHtml(f.path)}</span></div>`;
+  });
+  container.innerHTML = html;
+}
+
+function getFileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  const map = { docx:'📝',doc:'📝',pdf:'📕',xlsx:'📊',xls:'📊',pptx:'📽️',ppt:'📽️',jpg:'🖼️',jpeg:'🖼️',png:'🖼️',gif:'🖼️',heic:'🖼️',mp4:'🎬',mov:'🎬',zip:'📦',rar:'📦',md:'📋',txt:'📄',html:'🌐',js:'💻',css:'🎨',json:'📋',py:'🐍' };
+  return map[ext] || '📄';
+}
+
+function importFolderAsRecords() {
+  if (folderFiles.length === 0) { showToast('没有可导入的文件','error'); return; }
+  const today = getToday();
+  let imported = 0;
+
+  folderFiles.forEach(f => {
+    const cat = smartClassify(f.name + ' ' + f.path);
+    records.unshift({
+      id: Date.now() + Math.random(),
+      title: f.name,
+      content: `路径：${f.path}`,
+      category: cat,
+      date: today,
+      time: getNow(),
+      data: '',
+      link: ''
+    });
+    imported++;
+  });
+
+  saveRecords();
+  closeFolderModal();
+  showToast(`已导入 ${imported} 个文件/文件夹为工作记录`);
+  renderAll();
+}
+
+function closeFolderModal() {
+  document.getElementById('folderModal').style.display = 'none';
+}
+
+// ===== MODALS =====
+function openDetailModal() {
+  document.getElementById('detailDate').value = getToday();
+  document.getElementById('detailTitle').value = '';
+  document.getElementById('detailContent').value = '';
+  document.getElementById('detailData').value = '';
+  document.getElementById('detailLink').value = '';
+  document.getElementById('detailModal').style.display = 'flex';
+}
+function closeDetailModal() { document.getElementById('detailModal').style.display = 'none'; }
+
+function openMonthlyReport() {
+  const thisMonth = getCurrentMonth();
+  const monthRecords = records.filter(r => (r.date||'').startsWith(thisMonth));
+  const byCat = {};
+  monthRecords.forEach(r => { if (!byCat[r.category]) byCat[r.category] = []; byCat[r.category].push(r); });
+  let html = `<div style="margin-bottom:16px;"><strong>${thisMonth} 月度工作汇总</strong></div>`;
+  const catOrder = ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','qita'];
+  catOrder.forEach(cat => {
+    const items = byCat[cat] || [];
+    if (items.length === 0) return;
+    html += `<div style="margin-bottom:14px;"><strong style="color:var(--navy)">${getCategoryName(cat)}（${items.length}条）</strong></div>`;
+    html += '<table class="monthly-table"><thead><tr><th>日期</th><th>内容</th><th>数据指标</th></tr></thead><tbody>';
+    items.forEach(r => { html += `<tr><td>${r.date||''}</td><td>${escapeHtml(r.title)}${r.content?'<br><span style="font-size:11px;color:var(--text-secondary)">'+escapeHtml(r.content)+'</span>':''}</td><td style="color:var(--teal)">${escapeHtml(r.data||'—')}</td></tr>`; });
+    html += '</tbody></table>';
+  });
+  if (monthRecords.length === 0) html = '<div style="text-align:center;padding:20px;color:var(--text-secondary);">本月暂无工作记录</div>';
+  document.getElementById('reportContent').innerHTML = html;
+  document.getElementById('reportModal').style.display = 'flex';
+}
+function closeReportModal() { document.getElementById('reportModal').style.display = 'none'; }
+
+function openDataDashboard() {
+  const thisMonth = getCurrentMonth();
+  const monthRecords = records.filter(r => (r.date||'').startsWith(thisMonth));
+  const totalRecords = records.length;
+  const byCat = {};
+  records.forEach(r => { if (!byCat[r.category]) byCat[r.category] = 0; byCat[r.category]++; });
+  let html = `<div style="margin-bottom:16px;"><strong>数据成效总览</strong></div>`;
+  html += `<div style="margin-bottom:12px;">📋 总记录数：<strong style="color:var(--navy);font-size:20px;">${totalRecords}</strong> 条</div>`;
+  html += `<div style="margin-bottom:12px;">📅 本月记录：<strong style="color:var(--teal);font-size:20px;">${monthRecords.length}</strong> 条</div>`;
+  html += `<div style="margin-bottom:12px;">✅ 待办完成：<strong style="color:var(--coral);font-size:20px;">${todos.filter(t=>t.done).length}</strong> / ${todos.length}</div>`;
+  html += '<div style="margin-bottom:12px;"><strong>分类统计</strong></div>';
+  html += '<table class="monthly-table"><thead><tr><th>分类</th><th>总计</th><th>本月</th></tr></thead><tbody>';
+  ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','qita'].forEach(cat => {
+    const total = byCat[cat]||0;
+    const month = monthRecords.filter(r=>r.category===cat).length;
+    html += `<tr><td>${getCategoryName(cat)}</td><td>${total}</td><td>${month}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  const dataRecords = records.filter(r=>r.data);
+  if (dataRecords.length>0) {
+    html += '<div style="margin-top:16px;margin-bottom:8px;"><strong>数据指标记录</strong></div>';
+    html += '<table class="monthly-table"><thead><tr><th>日期</th><th>内容</th><th>指标</th></tr></thead><tbody>';
+    dataRecords.slice(0,20).forEach(r=>{ html += `<tr><td>${r.date||''}</td><td>${escapeHtml(r.title)}</td><td style="color:var(--teal)">${escapeHtml(r.data)}</td></tr>`; });
+    html += '</tbody></table>';
+  }
+  document.getElementById('dashboardContent').innerHTML = html;
+  document.getElementById('dashboardModal').style.display = 'flex';
+}
+function closeDashboardModal() { document.getElementById('dashboardModal').style.display = 'none'; }
+
+// ===== EXPORT =====
+function exportMonthly() {
+  const thisMonth = document.getElementById('monthFilter').value || getCurrentMonth();
+  const monthRecords = records.filter(r => (r.date||'').startsWith(thisMonth));
+  if (monthRecords.length === 0) { showToast('本月暂无记录可导出','error'); return; }
+  const rows = [['日期','分类','标题','详细内容','数据指标','链接']];
+  monthRecords.forEach(r => { rows.push([r.date,getCategoryName(r.category),r.title,r.content,r.data,r.link]); });
+  const csvContent = rows.map(row => row.map(cell => '"'+(cell||'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csvContent],{type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `工作记录_${thisMonth}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('导出成功');
+}
+
+function copyReport() {
+  const content = document.getElementById('reportContent').innerText;
+  navigator.clipboard.writeText(content).then(() => showToast('报告已复制到剪贴板'));
+}
+
+// ===== TOAST =====
+function showToast(msg, type='success') {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+function showUndoToast(msg, onUndo) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.style.cssText = 'display:flex;align-items:center;gap:12px;';
+  toast.innerHTML = `<span>${msg}</span><button style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:4px 12px;border-radius:12px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;">撤销</button>`;
+  toast.querySelector('button').onclick = () => { onUndo(); toast.remove(); };
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+// ===== INIT =====
+renderAll();
+
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+if (records.length === 0) {
+  const today = getToday();
+  const yesterday = formatDate(new Date(Date.now()-86400000));
+  records = [
+    {id:1,title:'完成7月APN工作汇报课件初稿',content:'整理本月专病管理工作数据，包括吞咽筛查率、患者满意度等指标',category:'apn',date:today,time:getNow(),data:'吞咽筛查率96.8%，患者满意度98.2%',link:''},
+    {id:2,title:'脑卒中科普图书第三章修订',content:'修订脑卒中二级预防章节，补充最新指南内容',category:'keyan',date:today,time:getNow(),data:'完成3.2节修订',link:''},
+    {id:3,title:'专病管理系统前哨预警优化讨论',content:'与信息科讨论系统预警逻辑优化方案',category:'zhuanbing',date:yesterday,time:getNow(),data:'',link:''},
+    {id:4,title:'吞咽功能筛查标准化流程修订',content:'根据最新团标更新吞咽筛查SOP',category:'biaozhun',date:yesterday,time:getNow(),data:'修订SOPv2.3',link:''},
+    {id:5,title:'公众号推文：晨学赋能强专科',content:'撰写科室晨学培训公众号文章',category:'gzh',date:yesterday,time:getNow(),data:'阅读量850+',link:''},
+  ];
+  saveRecords();
+  renderAll();
+}
+</script>
+</body>
+</html>
