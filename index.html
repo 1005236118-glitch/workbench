@@ -13,6 +13,7 @@
 <link rel="apple-touch-icon" href="./icon-192.svg">
 <title>陶陶的工作台 - APN智能工作中心</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="./data-inject.js"></script>
 <style>
 /* Fallback for offline - system fonts */
 @font-face { font-family: 'Noto Sans SC Fallback'; src: local('PingFang SC'), local('Microsoft YaHei'), local('Hiragino Sans GB'); }
@@ -362,6 +363,24 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
 .install-banner .install-text { font-weight:500; }
 .install-banner .install-btn { background:var(--gold); color:#fff; border:none; padding:8px 16px; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; }
 .install-banner .install-close { background:none; border:none; color:rgba(255,255,255,.6); cursor:pointer; font-size:16px; padding:4px; }
+
+/* PPT Reference Panel */
+.ppt-ref-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; max-height:50vh; overflow-y:auto; }
+.ppt-ref-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; cursor:pointer; transition:var(--transition); display:flex; align-items:center; gap:10px; }
+.ppt-ref-card:hover { border-color:var(--teal); background:var(--teal-light); transform:translateY(-1px); }
+.ppt-ref-card .ppt-icon { font-size:28px; flex-shrink:0; }
+.ppt-ref-card .ppt-info { flex:1; min-width:0; }
+.ppt-ref-card .ppt-name { font-size:13px; font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ppt-ref-card .ppt-meta { font-size:11px; color:var(--text-secondary); margin-top:2px; }
+.ppt-ref-search { width:100%; border:1px solid var(--border); border-radius:20px; padding:8px 16px; font-size:14px; font-family:inherit; outline:none; margin-bottom:14px; transition:var(--transition); }
+.ppt-ref-search:focus { border-color:var(--teal); box-shadow:0 0 0 3px rgba(45,138,123,.1); }
+.ppt-ref-toolbar { display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+.ppt-ref-count { font-size:12px; color:var(--text-secondary); }
+.ppt-ref-empty { text-align:center; padding:40px; color:var(--text-secondary); }
+.ppt-ref-empty .empty-icon { font-size:48px; margin-bottom:12px; }
+@media (max-width:600px) {
+  .ppt-ref-grid { grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
@@ -402,6 +421,9 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
       </a>
       <a class="platform-tile" href="#" onclick="closePlatformPanel();openSyncSettings();">
         <span class="tile-icon">☁️</span>云同步
+      </a>
+      <a class="platform-tile" href="#" onclick="closePlatformPanel();openPptRef();">
+        <span class="tile-icon">📑</span>PPT参考
       </a>
     </div>
   </div>
@@ -448,6 +470,9 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
       </a>
       <a class="platform-link" href="#" onclick="openFolderPicker()">
         <span class="icon-box icon-folder">📁</span><span>提取文件夹内容</span>
+      </a>
+      <a class="platform-link" href="#" onclick="openPptRef()">
+        <span class="icon-box" style="background:#fdf0e8">📑</span><span>PPT 参考素材库</span>
       </a>
     </div>
     <div class="sidebar-card">
@@ -562,6 +587,7 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
       <div class="quick-link" onclick="openFolderPicker()"><span class="ql-icon" style="background:#fdf6e8">📁</span><span>提取文件夹内容</span></div>
       <div class="quick-link" onclick="exportMonthly()"><span class="ql-icon" style="background:#e8f0fe">📥</span><span>导出Excel数据</span></div>
       <div class="quick-link" onclick="openSyncSettings()"><span class="ql-icon" style="background:#e0f2fe">☁️</span><span>云同步设置</span></div>
+      <div class="quick-link" onclick="openPptRef()"><span class="ql-icon" style="background:#fdf0e8">📑</span><span>PPT 参考素材库</span></div>
     </div>
     <div class="panel-card">
       <h3>进行中的项目</h3>
@@ -715,6 +741,32 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="importFolderAsRecords()" id="folderImportBtn" style="display:none;">导入为工作记录</button>
       <button class="btn btn-outline" onclick="closeFolderModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- PPT Reference Modal -->
+<div class="modal-overlay" id="pptRefModal" style="display:none" onclick="if(event.target===this)closePptRef()">
+  <div class="modal modal-wide">
+    <h2>PPT 参考素材库</h2>
+    <div style="margin-bottom:8px;font-size:13px;color:var(--text-secondary);">
+      浏览桌面「参考PPT」文件夹中的参考素材，点击可查看文件详情。
+    </div>
+    <div class="ppt-ref-toolbar">
+      <input class="ppt-ref-search" placeholder="搜索PPT文件..." id="pptRefSearch" oninput="filterPptRef()">
+      <button class="btn btn-sm btn-outline" onclick="selectPptFolder()">选择文件夹</button>
+      <button class="btn btn-sm btn-outline" onclick="refreshPptFolder()">刷新</button>
+    </div>
+    <div class="ppt-ref-count" id="pptRefCount"></div>
+    <div id="pptRefContent">
+      <div class="ppt-ref-empty">
+        <div class="empty-icon">📂</div>
+        <div>点击「选择文件夹」打开桌面上的「参考PPT」文件夹</div>
+        <div style="font-size:12px;margin-top:4px;">浏览器会记住你的选择，下次自动加载</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closePptRef()">关闭</button>
     </div>
   </div>
 </div>
@@ -2450,6 +2502,30 @@ function generateRecap() {
 }
 
 // ===== INIT =====
+// Data injection: merge records injected by Trae assistant
+(function applyInjectedRecords() {
+  const INJECT_VERSION_KEY = 'taotao_inject_version';
+  const injectedRecords = window.__INJECT_RECORDS__ || [];
+  const injectVersion = window.__INJECT_VERSION__ || 0;
+  const lastVersion = parseInt(localStorage.getItem(INJECT_VERSION_KEY) || '0');
+  
+  if (injectedRecords.length > 0 && injectVersion > lastVersion) {
+    let merged = false;
+    injectedRecords.forEach(ir => {
+      // Check if record already exists
+      if (!records.find(r => r.id === ir.id)) {
+        records.unshift(ir);
+        merged = true;
+      }
+    });
+    if (merged) {
+      saveRecords();
+      showToast('已从对话中导入 ' + injectedRecords.length + ' 条工作记录');
+    }
+    localStorage.setItem(INJECT_VERSION_KEY, String(injectVersion));
+  }
+})();
+
 renderAll();
 
 // Register Service Worker for PWA
@@ -2748,6 +2824,206 @@ if (records.length === 0) {
   ];
   saveRecords();
   renderAll();
+}
+
+// ===== PPT REFERENCE PANEL =====
+let pptFolderHandle = null;
+let pptFiles = [];
+
+async function openPptRef() {
+  document.getElementById('pptRefModal').style.display = 'flex';
+  // Try to restore folder handle from IndexedDB if available
+  if (!pptFolderHandle) {
+    await restorePptFolderHandle();
+  }
+  if (pptFolderHandle) {
+    await loadPptFiles();
+  }
+  renderPptFiles();
+}
+
+function closePptRef() {
+  document.getElementById('pptRefModal').style.display = 'none';
+}
+
+async function selectPptFolder() {
+  try {
+    if (!('showDirectoryPicker' in window)) {
+      showToast('您的浏览器不支持文件夹选择功能，请使用 Chrome 或 Edge', 'error');
+      return;
+    }
+    pptFolderHandle = await window.showDirectoryPicker({ mode: 'read' });
+    await savePptFolderHandle();
+    await loadPptFiles();
+    renderPptFiles();
+    showToast('文件夹已加载：' + pptFiles.length + ' 个文件');
+  } catch (e) {
+    if (e.name !== 'AbortError') {
+      console.error('Folder selection error:', e);
+      showToast('文件夹选择失败', 'error');
+    }
+  }
+}
+
+async function loadPptFiles() {
+  if (!pptFolderHandle) return;
+  pptFiles = [];
+  try {
+    for await (const entry of pptFolderHandle.values()) {
+      if (entry.kind === 'file') {
+        const name = entry.name;
+        const ext = name.split('.').pop().toLowerCase();
+        // Filter for PPT, PDF, DOCX files
+        if (['pptx', 'ppt', 'pdf', 'docx', 'doc'].includes(ext)) {
+          pptFiles.push({
+            name: name,
+            handle: entry,
+            ext: ext,
+            kind: ext === 'pdf' ? 'pdf' : (ext === 'docx' || ext === 'doc' ? 'doc' : 'ppt')
+          });
+        }
+      }
+    }
+    // Sort by name
+    pptFiles.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+  } catch (e) {
+    console.error('Error loading files:', e);
+  }
+}
+
+async function refreshPptFolder() {
+  if (!pptFolderHandle) {
+    showToast('请先选择文件夹', 'error');
+    return;
+  }
+  await loadPptFiles();
+  renderPptFiles();
+  showToast('已刷新，共 ' + pptFiles.length + ' 个文件');
+}
+
+function filterPptRef() {
+  renderPptFiles();
+}
+
+function renderPptFiles() {
+  const container = document.getElementById('pptRefContent');
+  const countEl = document.getElementById('pptRefCount');
+  const searchText = (document.getElementById('pptRefSearch')?.value || '').toLowerCase();
+  
+  let filtered = pptFiles;
+  if (searchText) {
+    filtered = pptFiles.filter(f => f.name.toLowerCase().includes(searchText));
+  }
+  
+  countEl.textContent = filtered.length + ' 个文件' + (searchText ? '（已筛选）' : '');
+  
+  if (filtered.length === 0) {
+    container.innerHTML = searchText
+      ? '<div class="ppt-ref-empty"><div class="empty-icon">🔍</div><div>没有找到匹配的文件</div></div>'
+      : '<div class="ppt-ref-empty"><div class="empty-icon">📂</div><div>点击「选择文件夹」打开桌面上的「参考PPT」文件夹</div><div style="font-size:12px;margin-top:4px;">浏览器会记住你的选择，下次自动加载</div></div>';
+    return;
+  }
+  
+  const iconMap = { ppt: '📊', pdf: '📄', doc: '📝' };
+  const kindLabel = { ppt: 'PPT', pdf: 'PDF', doc: '文档' };
+  
+  let html = '<div class="ppt-ref-grid">';
+  filtered.forEach(f => {
+    const icon = iconMap[f.kind] || '📎';
+    const label = kindLabel[f.kind] || '文件';
+    html += '<div class="ppt-ref-card" onclick="openPptFile(\'' + escapeHtml(f.name) + '\')" title="点击查看文件：' + escapeHtml(f.name) + '">';
+    html += '<span class="ppt-icon">' + icon + '</span>';
+    html += '<div class="ppt-info">';
+    html += '<div class="ppt-name">' + escapeHtml(f.name) + '</div>';
+    html += '<div class="ppt-meta">' + label + ' 文件</div>';
+    html += '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+async function openPptFile(fileName) {
+  const file = pptFiles.find(f => f.name === fileName);
+  if (!file || !file.handle) {
+    showToast('文件未找到', 'error');
+    return;
+  }
+  try {
+    const fileData = await file.handle.getFile();
+    const url = URL.createObjectURL(fileData);
+    window.open(url, '_blank');
+    // Clean up after a delay
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (e) {
+    console.error('Error opening file:', e);
+    showToast('无法打开文件', 'error');
+  }
+}
+
+// Persist folder handle using IndexedDB (if available)
+async function savePptFolderHandle() {
+  if (!pptFolderHandle) return;
+  try {
+    // Use the File System Access API's built-in permission persistence
+    if ('requestPermission' in pptFolderHandle) {
+      const perm = await pptFolderHandle.queryPermission({ mode: 'read' });
+      if (perm !== 'granted') {
+        await pptFolderHandle.requestPermission({ mode: 'read' });
+      }
+    }
+    // Store handle in IndexedDB for persistence
+    const db = await openPptDb();
+    const tx = db.transaction('handles', 'readwrite');
+    tx.objectStore('handles').put(pptFolderHandle, 'pptFolder');
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+  } catch (e) {
+    console.warn('Could not persist folder handle:', e);
+  }
+}
+
+async function restorePptFolderHandle() {
+  try {
+    const db = await openPptDb();
+    const tx = db.transaction('handles', 'readonly');
+    const req = tx.objectStore('handles').get('pptFolder');
+    const handle = await new Promise((resolve, reject) => {
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    if (handle) {
+      // Verify permission
+      const perm = await handle.queryPermission({ mode: 'read' });
+      if (perm === 'granted') {
+        pptFolderHandle = handle;
+      } else {
+        // Try to re-request
+        const newPerm = await handle.requestPermission({ mode: 'read' });
+        if (newPerm === 'granted') {
+          pptFolderHandle = handle;
+        }
+      }
+    }
+  } catch (e) {
+    // IndexedDB not available or handle expired
+  }
+}
+
+function openPptDb() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('taotao_workbench', 1);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('handles')) {
+        db.createObjectStore('handles');
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
 }
 </script>
 </body>
