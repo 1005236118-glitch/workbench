@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taotao-workbench-v4';
+const CACHE_NAME = 'taotao-workbench-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -40,6 +40,9 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (!url.protocol.startsWith('http')) return;
 
+  // Skip GitHub API requests (don't cache API calls)
+  if (url.hostname === 'api.github.com') return;
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
@@ -64,4 +67,47 @@ self.addEventListener('fetch', (event) => {
         });
       })
   );
+});
+
+// Background Sync - sync data when connection is restored
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'workbench-sync') {
+    event.waitUntil(
+      // Notify all clients that sync should happen
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: 'background-sync' });
+        });
+      })
+    );
+  }
+});
+
+// Periodic Background Sync - keep data fresh (if supported)
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'workbench-periodic-sync') {
+    event.waitUntil(
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: 'periodic-sync' });
+        });
+      })
+    );
+  }
+});
+
+// Listen for messages from the page
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'register-sync') {
+    // Register background sync if supported
+    if ('sync' in self.registration) {
+      self.registration.sync.register('workbench-sync').catch(() => {});
+    }
+    // Register periodic sync if supported
+    if ('periodicSync' in self.registration) {
+      self.registration.periodicSync.register('workbench-periodic-sync', {
+        minInterval: 10 * 60 * 1000 // 10 minutes minimum
+      }).catch(() => {});
+    }
+  }
 });

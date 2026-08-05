@@ -278,6 +278,18 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
 .dark-toggle { background: none; border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.7); cursor: pointer; font-size: 18px; padding: 4px 8px; border-radius: 6px; transition: var(--transition); line-height: 1; }
 .dark-toggle:hover { background: rgba(255,255,255,.1); color: #fff; }
 
+/* Sync Status Indicator */
+.sync-indicator { display:flex; align-items:center; gap:6px; font-size:12px; color: rgba(255,255,255,.6); cursor:pointer; transition: var(--transition); padding: 4px 10px; border-radius: 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); }
+.sync-indicator:hover { background: rgba(255,255,255,.12); color: rgba(255,255,255,.9); }
+.sync-dot { width:8px; height:8px; border-radius:50%; background: #4caf50; flex-shrink:0; }
+.sync-dot.syncing { background: var(--gold); animation: pulse 1.2s infinite; }
+.sync-dot.offline { background: var(--coral); }
+.sync-dot.error { background: #f44336; }
+.sync-indicator .sync-label { white-space:nowrap; }
+@media (max-width:900px) {
+  .sync-indicator .sync-label { display:none; }
+}
+
 /* Mobile Bottom Navigation */
 .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); z-index: 150; padding: 6px 0; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
 .mobile-nav-inner { display: flex; justify-content: space-around; max-width: 500px; margin: 0 auto; }
@@ -388,6 +400,9 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
       <a class="platform-tile" href="#" onclick="closePlatformPanel();openVoiceModal();">
         <span class="tile-icon">🎤</span>语音输入
       </a>
+      <a class="platform-tile" href="#" onclick="closePlatformPanel();openSyncSettings();">
+        <span class="tile-icon">☁️</span>云同步
+      </a>
     </div>
   </div>
 </div>
@@ -402,6 +417,10 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
     </div>
   </div>
   <div class="header-right">
+    <span class="sync-indicator" id="syncIndicator" onclick="manualSync()" title="点击手动同步数据">
+      <span class="sync-dot" id="syncDot"></span>
+      <span class="sync-label" id="syncLabel">同步中...</span>
+    </span>
     <button class="dark-toggle" onclick="toggleDarkMode()" title="切换暗色模式" id="darkToggle">🌙</button>
     <input class="quick-search" placeholder="搜索工作记录..." id="searchInput" oninput="renderCurrentView()">
     <div class="greeting" id="greetingText"></div>
@@ -542,6 +561,7 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
       <div class="quick-link" onclick="openAnnualReport()"><span class="ql-icon" style="background:#e0f2fe">📈</span><span>生成年度报表</span></div>
       <div class="quick-link" onclick="openFolderPicker()"><span class="ql-icon" style="background:#fdf6e8">📁</span><span>提取文件夹内容</span></div>
       <div class="quick-link" onclick="exportMonthly()"><span class="ql-icon" style="background:#e8f0fe">📥</span><span>导出Excel数据</span></div>
+      <div class="quick-link" onclick="openSyncSettings()"><span class="ql-icon" style="background:#e0f2fe">☁️</span><span>云同步设置</span></div>
     </div>
     <div class="panel-card">
       <h3>进行中的项目</h3>
@@ -695,6 +715,28 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="importFolderAsRecords()" id="folderImportBtn" style="display:none;">导入为工作记录</button>
       <button class="btn btn-outline" onclick="closeFolderModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sync Settings Modal -->
+<div class="modal-overlay" id="syncSettingsModal" style="display:none" onclick="if(event.target===this)closeSyncSettings()">
+  <div class="modal">
+    <h2>云同步设置</h2>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.8;">
+      配置 GitHub Personal Access Token 实现跨设备数据同步。<br>
+      <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--teal);">点击这里创建 Token</a>，勾选 <strong>gist</strong> 权限即可。
+    </div>
+    <div class="form-group">
+      <label>GitHub Token</label>
+      <input type="password" id="syncTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;">
+    </div>
+    <div style="font-size:11px;color:var(--text-secondary);padding:8px 12px;background:var(--gold-light);border-radius:6px;margin-bottom:12px;">
+      Token 仅保存在您当前设备的浏览器中，不会上传到任何服务器。如需多设备同步，请在每台设备上配置相同的 Token。
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeSyncSettings()">取消</button>
+      <button class="btn btn-primary" onclick="saveSyncToken()">保存并开始同步</button>
     </div>
   </div>
 </div>
@@ -892,7 +934,309 @@ function saveEditRecord() {
   renderAll();
 }
 
-function saveRecords() { localStorage.setItem(RECORDS_KEY, JSON.stringify(records)); }
+function saveRecords() { localStorage.setItem(RECORDS_KEY, JSON.stringify(records)); triggerSync(); }
+function saveTodos() { localStorage.setItem(TODOS_KEY, JSON.stringify(todos)); triggerSync(); }
+
+// ===== CROSS-DEVICE SYNC (GitHub Gist API) =====
+const GIST_ID_KEY = 'taotao_gist_id';
+const GIST_TOKEN_KEY = 'taotao_gist_token';
+const GIST_FILENAME = 'workbench-data.json';
+const SYNC_LAST_KEY = 'taotao_last_sync';
+const SYNC_QUEUE_KEY = 'taotao_sync_queue';
+let syncTimer = null;
+let isSyncing = false;
+let syncQueue = JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || '[]');
+
+function getGistToken() {
+  return localStorage.getItem(GIST_TOKEN_KEY) || '';
+}
+
+function hasSyncToken() {
+  return !!getGistToken();
+}
+
+function updateSyncUI(status, label) {
+  const dot = document.getElementById('syncDot');
+  const lbl = document.getElementById('syncLabel');
+  if (!dot || !lbl) return;
+  dot.className = 'sync-dot ' + status;
+  lbl.textContent = label;
+}
+
+function triggerSync() {
+  if (!hasSyncToken()) return; // Don't sync without token
+  // Debounce: wait 500ms after last change before syncing
+  if (syncTimer) clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => performSync(), 500);
+}
+
+async function gistRequest(method, path, body) {
+  const token = getGistToken();
+  if (!token) throw new Error('未配置同步Token');
+  const headers = {
+    'Authorization': 'token ' + token,
+    'Accept': 'application/vnd.github.v3+json'
+  };
+  if (body) headers['Content-Type'] = 'application/json';
+  const resp = await fetch('https://api.github.com' + path, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!resp.ok) {
+    const errText = await resp.text();
+    throw new Error('GitHub API error ' + resp.status + ': ' + errText);
+  }
+  return resp.json();
+}
+
+async function getOrCreateGist() {
+  let gistId = localStorage.getItem(GIST_ID_KEY);
+  if (gistId) {
+    // Verify it still exists
+    try {
+      await gistRequest('GET', '/gists/' + gistId);
+      return gistId;
+    } catch(e) {
+      // Gist was deleted or token invalid, create new one
+      localStorage.removeItem(GIST_ID_KEY);
+    }
+  }
+  // Create new gist
+  const gist = await gistRequest('POST', '/gists', {
+    description: '陶陶工作台 - 跨设备数据同步',
+    public: false,
+    files: {
+      [GIST_FILENAME]: {
+        content: JSON.stringify({
+          records: records,
+          todos: todos,
+          updatedAt: new Date().toISOString(),
+          device: getDeviceInfo()
+        })
+      }
+    }
+  });
+  localStorage.setItem(GIST_ID_KEY, gist.id);
+  return gist.id;
+}
+
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  const isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(ua);
+  return {
+    name: (isMobile ? '手机' : '电脑') + ' - ' + (navigator.platform || 'unknown'),
+    userAgent: ua.substring(0, 100)
+  };
+}
+
+function mergeData(localData, remoteData) {
+  // Merge records by id, keeping the one with later time
+  const merged = {};
+  const localRecords = localData.records || [];
+  const remoteRecords = remoteData.records || [];
+
+  [...localRecords, ...remoteRecords].forEach(r => {
+    if (!r.id) return;
+    if (!merged[r.id] || new Date(r.time) > new Date(merged[r.id].time)) {
+      merged[r.id] = r;
+    }
+  });
+
+  // Merge todos by id
+  const mergedTodos = {};
+  const localTodos = localData.todos || [];
+  const remoteTodos = remoteData.todos || [];
+
+  [...localTodos, ...remoteTodos].forEach(t => {
+    if (!t.id) return;
+    if (!mergedTodos[t.id] || new Date(t.time) > new Date(mergedTodos[t.id].time)) {
+      mergedTodos[t.id] = t;
+    }
+  });
+
+  return {
+    records: Object.values(merged).sort((a, b) => new Date(b.time) - new Date(a.time)),
+    todos: Object.values(mergedTodos).sort((a, b) => new Date(b.time) - new Date(a.time))
+  };
+}
+
+async function performSync() {
+  if (isSyncing) return;
+  if (!hasSyncToken()) {
+    updateSyncUI('', '未配置');
+    return;
+  }
+  if (!navigator.onLine) {
+    updateSyncUI('offline', '离线');
+    syncQueue.push(Date.now());
+    localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(syncQueue));
+    return;
+  }
+
+  isSyncing = true;
+  updateSyncUI('syncing', '同步中...');
+
+  try {
+    const gistId = await getOrCreateGist();
+
+    // Step 1: Pull remote data
+    const gist = await gistRequest('GET', '/gists/' + gistId);
+    let remoteData = { records: [], todos: [] };
+    if (gist.files && gist.files[GIST_FILENAME] && gist.files[GIST_FILENAME].content) {
+      try {
+        remoteData = JSON.parse(gist.files[GIST_FILENAME].content);
+      } catch(e) { /* corrupted data, use empty */ }
+    }
+
+    // Step 2: Merge local and remote data
+    const merged = mergeData(
+      { records, todos, updatedAt: localStorage.getItem(SYNC_LAST_KEY) || '1970-01-01' },
+      remoteData
+    );
+
+    // Step 3: Update local data
+    const hadChanges = (
+      JSON.stringify(records) !== JSON.stringify(merged.records) ||
+      JSON.stringify(todos) !== JSON.stringify(merged.todos)
+    );
+    records = merged.records;
+    todos = merged.todos;
+    localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+    localStorage.setItem(TODOS_KEY, JSON.stringify(todos));
+
+    // Step 4: Push merged data to gist
+    const now = new Date().toISOString();
+    await gistRequest('PATCH', '/gists/' + gistId, {
+      files: {
+        [GIST_FILENAME]: {
+          content: JSON.stringify({
+            records: records,
+            todos: todos,
+            updatedAt: now,
+            device: getDeviceInfo()
+          })
+        }
+      }
+    });
+
+    localStorage.setItem(SYNC_LAST_KEY, now);
+    syncQueue = [];
+    localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(syncQueue));
+    updateSyncUI('', '已同步');
+
+    if (hadChanges) {
+      renderAll();
+      showToast('数据已从云端同步');
+    }
+  } catch (e) {
+    console.error('Sync failed:', e);
+    updateSyncUI('error', '同步失败');
+    syncQueue.push(Date.now());
+    localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(syncQueue));
+  } finally {
+    isSyncing = false;
+  }
+}
+
+async function manualSync() {
+  if (!hasSyncToken()) {
+    openSyncSettings();
+    return;
+  }
+  if (isSyncing) return;
+  updateSyncUI('syncing', '手动同步...');
+  await performSync();
+  if (navigator.onLine && syncQueue.length === 0) {
+    showToast('数据同步完成');
+  }
+}
+
+// Online/Offline event listeners
+window.addEventListener('online', () => {
+  updateSyncUI('syncing', '恢复在线，同步中...');
+  performSync();
+});
+
+window.addEventListener('offline', () => {
+  updateSyncUI('offline', '离线');
+});
+
+// Periodic sync every 2 minutes
+setInterval(() => {
+  if (navigator.onLine && !isSyncing && hasSyncToken()) {
+    performSync();
+  }
+}, 2 * 60 * 1000);
+
+// Initial sync on page load (after a short delay)
+setTimeout(() => {
+  if (hasSyncToken()) {
+    if (navigator.onLine) {
+      performSync();
+    } else {
+      updateSyncUI('offline', '离线');
+    }
+  } else {
+    updateSyncUI('', '未配置');
+  }
+}, 1500);
+
+// ===== SYNC SETTINGS =====
+function openSyncSettings() {
+  document.getElementById('syncSettingsModal').style.display = 'flex';
+  const token = getGistToken();
+  document.getElementById('syncTokenInput').value = token ? token.substring(0, 8) + '...' + token.substring(token.length - 4) : '';
+  document.getElementById('syncTokenInput').dataset.editing = token ? 'false' : 'true';
+  if (token) {
+    document.getElementById('syncTokenInput').type = 'password';
+    document.getElementById('syncTokenInput').placeholder = '已保存（点击输入框修改）';
+  }
+}
+
+function closeSyncSettings() {
+  document.getElementById('syncSettingsModal').style.display = 'none';
+}
+
+function saveSyncToken() {
+  const input = document.getElementById('syncTokenInput');
+  let token = input.value.trim();
+  
+  // If user clicked but didn't change (editing existing), keep old token
+  if (input.dataset.editing === 'false' && !token) {
+    closeSyncSettings();
+    return;
+  }
+  
+  if (!token) {
+    showToast('请输入 GitHub Personal Access Token', 'error');
+    return;
+  }
+  
+  // Validate token format
+  if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+    showToast('Token 格式不正确，应以 ghp_ 或 github_pat_ 开头', 'error');
+    return;
+  }
+  
+  localStorage.setItem(GIST_TOKEN_KEY, token);
+  closeSyncSettings();
+  showToast('同步Token已保存，开始同步...');
+  updateSyncUI('syncing', '同步中...');
+  
+  // Clear old gist ID so we create a fresh one with the new token
+  localStorage.removeItem(GIST_ID_KEY);
+  performSync();
+}
+
+// Sync token input: clear placeholder on focus
+document.getElementById('syncTokenInput').addEventListener('focus', function() {
+  if (this.dataset.editing === 'false') {
+    this.value = '';
+    this.dataset.editing = 'true';
+    this.placeholder = '输入 GitHub Personal Access Token';
+  }
+});
 
 function filterByCategory(cat, el) {
   currentFilter = cat;
@@ -1010,8 +1354,6 @@ function toggleShowDone() {
   document.getElementById('showDoneBtn').textContent = showDone ? '隐藏已完成' : '显示已完成';
   renderTodos();
 }
-
-function saveTodos() { localStorage.setItem(TODOS_KEY, JSON.stringify(todos)); }
 
 // ===== TODO EDITING =====
 function openTodoEditModal(id) {
@@ -2112,7 +2454,26 @@ renderAll();
 
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
+  navigator.serviceWorker.register('./sw.js').then((reg) => {
+    // Register Background Sync if supported
+    if ('sync' in reg) {
+      reg.sync.register('workbench-sync').catch(() => {});
+    }
+    if ('periodicSync' in reg) {
+      reg.periodicSync.register('workbench-periodic-sync', {
+        minInterval: 10 * 60 * 1000
+      }).catch(() => {});
+    }
+  }).catch(() => {});
+  
+  // Listen for messages from Service Worker
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data && (event.data.type === 'background-sync' || event.data.type === 'periodic-sync')) {
+      if (navigator.onLine && !isSyncing) {
+        performSync();
+      }
+    }
+  });
 }
 
 // ===== PWA INSTALL =====
