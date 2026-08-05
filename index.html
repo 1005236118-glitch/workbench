@@ -799,6 +799,18 @@ const RECORDS_KEY = 'taotao_workbench_records';
 const TODOS_KEY = 'taotao_workbench_todos';
 let records = JSON.parse(localStorage.getItem(RECORDS_KEY) || '[]');
 let todos = JSON.parse(localStorage.getItem(TODOS_KEY) || '[]');
+
+// 注入 Trae 助手推送的工作记录（去重）
+(function injectTraeRecords() {
+  const INJECT_KEY = 'taotao_trae_inject_v1';
+  if (localStorage.getItem(INJECT_KEY)) return;
+  var newRecords = [
+    {id: 1754182800000, title: '指导两名护士完成教学比赛指导工作', content: '', category: 'apn', date: '2026-08-03', time: '2026-08-03T01:00:00.000Z', data: '', link: ''}
+  ];
+  newRecords.forEach(function(r) { if (!records.find(function(x) { return x.id === r.id; })) records.unshift(r); });
+  localStorage.setItem(INJECT_KEY, '1');
+  saveRecords();
+})();
 let currentFilter = 'all';
 let currentTab = 'records';
 let showDone = false;
@@ -940,10 +952,14 @@ function deleteRecord(id) {
   const idx = records.findIndex(r => r.id === id);
   if (idx === -1) return;
   deletedRecord = records.splice(idx, 1)[0];
+  // Track deleted ID so sync doesn't restore it
+  addDeletedId(id);
   saveRecords();
   renderAll();
   showUndoToast('记录已删除', () => {
     records.splice(idx, 0, deletedRecord);
+    // Remove from deleted set when undoing
+    removeDeletedId(id);
     deletedRecord = null;
     saveRecords();
     renderAll();
@@ -995,9 +1011,26 @@ const GIST_TOKEN_KEY = 'taotao_gist_token';
 const GIST_FILENAME = 'workbench-data.json';
 const SYNC_LAST_KEY = 'taotao_last_sync';
 const SYNC_QUEUE_KEY = 'taotao_sync_queue';
+const DELETED_IDS_KEY = 'taotao_deleted_ids';
 let syncTimer = null;
 let isSyncing = false;
 let syncQueue = JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || '[]');
+let deletedIds = new Set(JSON.parse(localStorage.getItem(DELETED_IDS_KEY) || '[]'));
+
+function addDeletedId(id) {
+  deletedIds.add(id);
+  localStorage.setItem(DELETED_IDS_KEY, JSON.stringify([...deletedIds]));
+}
+
+function removeDeletedId(id) {
+  deletedIds.delete(id);
+  localStorage.setItem(DELETED_IDS_KEY, JSON.stringify([...deletedIds]));
+}
+
+function clearDeletedIds() {
+  deletedIds.clear();
+  localStorage.removeItem(DELETED_IDS_KEY);
+}
 
 function getGistToken() {
   return localStorage.getItem(GIST_TOKEN_KEY) || '';
@@ -1084,12 +1117,15 @@ function getDeviceInfo() {
 
 function mergeData(localData, remoteData) {
   // Merge records by id, keeping the one with later time
+  // But filter out records that were explicitly deleted by the user
   const merged = {};
   const localRecords = localData.records || [];
   const remoteRecords = remoteData.records || [];
 
   [...localRecords, ...remoteRecords].forEach(r => {
     if (!r.id) return;
+    // Skip records that user has explicitly deleted
+    if (deletedIds.has(r.id)) return;
     if (!merged[r.id] || new Date(r.time) > new Date(merged[r.id].time)) {
       merged[r.id] = r;
     }
@@ -1102,6 +1138,7 @@ function mergeData(localData, remoteData) {
 
   [...localTodos, ...remoteTodos].forEach(t => {
     if (!t.id) return;
+    if (deletedIds.has(t.id)) return;
     if (!mergedTodos[t.id] || new Date(t.time) > new Date(mergedTodos[t.id].time)) {
       mergedTodos[t.id] = t;
     }
@@ -1175,6 +1212,8 @@ async function performSync() {
     localStorage.setItem(SYNC_LAST_KEY, now);
     syncQueue = [];
     localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(syncQueue));
+    // Clear deleted IDs - deletion is now reflected in Gist
+    clearDeletedIds();
     updateSyncUI('', '已同步');
 
     if (hadChanges) {
@@ -1346,6 +1385,8 @@ function updateBatchUI() {
 function batchDelete() {
   if (selectedIds.size === 0) { showToast('请先选择记录','error'); return; }
   const count = selectedIds.size;
+  // Track all deleted IDs so sync doesn't restore them
+  selectedIds.forEach(id => addDeletedId(id));
   records = records.filter(r => !selectedIds.has(r.id));
   saveRecords();
   selectedIds.clear();
@@ -1396,6 +1437,7 @@ function toggleTodo(id) {
 }
 
 function deleteTodo(id) {
+  addDeletedId(id);
   todos = todos.filter(t => t.id !== id);
   saveTodos();
   renderAll();
