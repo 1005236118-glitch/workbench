@@ -650,8 +650,8 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
   <div class="modal modal-wide">
     <h2>🎤 语音输入 <span style="font-size:13px;font-weight:400;color:var(--text-secondary);">— 逐条录音，边说边整理</span></h2>
     <div class="voice-mode-toggle">
-      <button class="voice-mode-btn active" id="modeReview" onclick="setVoiceMode('review')">📋 复盘模式</button>
-      <button class="voice-mode-btn" id="modePlan" onclick="setVoiceMode('plan')">📝 规划模式</button>
+      <button class="voice-mode-btn active" id="modePlan" onclick="setVoiceMode('plan')">📝 规划模式</button>
+      <button class="voice-mode-btn" id="modeReview" onclick="setVoiceMode('review')">📋 复盘模式</button>
     </div>
     <div class="voice-mic-wrap">
       <div class="voice-mic" id="voiceMic" onclick="toggleRecording()">🎙️</div>
@@ -814,7 +814,7 @@ let todos = JSON.parse(localStorage.getItem(TODOS_KEY) || '[]');
 let currentFilter = 'all';
 let currentTab = 'records';
 let showDone = false;
-let voiceMode = 'review'; // 'review' | 'plan'
+let voiceMode = 'plan'; // 'plan' | 'review'
 let parsedItems = [];
 let folderFiles = [];
 let deletedRecord = null; // For undo delete
@@ -1752,7 +1752,14 @@ function toggleRecording() {
     document.getElementById('voiceStatus').classList.add('recording');
     document.getElementById('voiceMic').classList.add('recording');
     document.getElementById('voiceMic').textContent = '🔴';
-    try { recognition.start(); } catch(e) { console.error(e); }
+    try {
+      recognition.start();
+    } catch(e) {
+      console.error('Speech start error:', e);
+      resetRecordingUI();
+      document.getElementById('voiceStatus').textContent = '启动失败，请检查麦克风权限';
+      showToast('语音启动失败，请检查浏览器麦克风权限', 'error');
+    }
   }
 }
 
