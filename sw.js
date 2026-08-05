@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taotao-workbench-v3';
+const CACHE_NAME = 'taotao-workbench-v4';
 const ASSETS = [
   './',
   './index.html',
