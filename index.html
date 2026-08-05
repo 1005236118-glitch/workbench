@@ -1076,11 +1076,30 @@ async function githubApiRequest(method, path, body) {
   return resp.json();
 }
 
+// UTF-8 safe base64 encode/decode helpers
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+function base64ToUtf8(b64) {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return new TextDecoder().decode(bytes);
+}
+
 async function getRemoteData() {
   try {
     const data = await githubApiRequest('GET',
       `/repos/${REPO_OWNER}/${REPO_NAME}/contents/${SYNC_FILE_PATH}`);
-    const content = decodeURIComponent(escape(atob(data.content)));
+    const content = base64ToUtf8(data.content);
     return JSON.parse(content);
   } catch (e) {
     if (e.message.includes('404')) return { records: [], todos: [], updatedAt: '1970-01-01' };
@@ -1090,7 +1109,7 @@ async function getRemoteData() {
 
 async function saveRemoteData(data) {
   const jsonStr = JSON.stringify(data);
-  const content = btoa(unescape(encodeURIComponent(jsonStr)));
+  const content = utf8ToBase64(jsonStr);
   let sha = '';
   try {
     const existing = await githubApiRequest('GET',
@@ -1212,7 +1231,10 @@ async function performSync() {
     }
   } catch (e) {
     console.error('Sync failed:', e);
-    updateSyncUI('error', '同步失败');
+    const errMsg = e.message || String(e);
+    // Extract meaningful part from GitHub API error
+    const shortMsg = errMsg.length > 60 ? errMsg.substring(0, 60) + '...' : errMsg;
+    updateSyncUI('error', '失败: ' + shortMsg);
     syncQueue.push(Date.now());
     localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(syncQueue));
   } finally {
@@ -1286,7 +1308,7 @@ function closeSyncSettings() {
   document.getElementById('syncSettingsModal').style.display = 'none';
 }
 
-function saveSyncToken() {
+async function saveSyncToken() {
   const input = document.getElementById('syncTokenInput');
   let token = input.value.trim();
   
@@ -1306,10 +1328,30 @@ function saveSyncToken() {
     showToast('Token 格式不正确，应以 ghp_ 或 github_pat_ 开头', 'error');
     return;
   }
+
+  // Verify token works before saving
+  showToast('正在验证 Token...');
+  try {
+    const resp = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${SYNC_FILE_PATH}`, {
+      headers: {
+        'Authorization': 'token ' + token,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    if (!resp.ok) {
+      const errData = await resp.json().catch(() => ({}));
+      const errMsg = errData.message || `HTTP ${resp.status}`;
+      showToast('Token 验证失败: ' + errMsg, 'error');
+      return;
+    }
+  } catch (e) {
+    showToast('网络错误，无法验证 Token: ' + e.message, 'error');
+    return;
+  }
   
   localStorage.setItem(SYNC_TOKEN_KEY, token);
   closeSyncSettings();
-  showToast('同步Token已保存，开始同步...');
+  showToast('Token 验证通过，开始同步...');
   updateSyncUI('syncing', '同步中...');
   performSync();
 }
