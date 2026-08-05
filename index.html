@@ -209,47 +209,10 @@ body {
 .monthly-table td { padding:10px 8px; border-bottom:1px solid var(--border); color: var(--text); }
 .monthly-table tr:hover td { background: var(--surface-alt); }
 
-/* Voice Modal */
-.voice-mic-wrap { text-align:center; padding:30px 0; }
-.voice-mic { width:100px; height:100px; border-radius:50%; border:4px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; margin:0 auto; transition: var(--transition); font-size:40px; background: var(--surface); }
-.voice-mic:hover { border-color: var(--teal); transform:scale(1.05); }
-.voice-mic.recording { border-color: var(--coral); background: var(--coral-light); animation: pulse 1.5s infinite; }
-.voice-mic.recording:hover { border-color: var(--coral); }
-@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(212,114,106,.4); } 50% { box-shadow: 0 0 0 20px rgba(212,114,106,0); } }
-.voice-status { margin-top:16px; font-size:14px; color: var(--text-secondary); }
-.voice-status.recording { color: var(--coral); font-weight:600; }
-.voice-text { margin-top:20px; background: var(--surface-alt); border-radius: var(--radius-sm); padding:16px; font-size:15px; line-height:1.8; min-height:60px; text-align:left; color: var(--text); }
-.voice-mode-toggle { display:flex; gap:4px; background: var(--slate-light); border-radius:20px; padding:3px; margin-bottom:16px; width:fit-content; margin-left:auto; margin-right:auto; }
-.voice-mode-btn { padding:8px 20px; border:none; background:transparent; border-radius:18px; font-size:13px; font-weight:500; cursor:pointer; color: var(--text-secondary); transition: var(--transition); font-family:inherit; }
-.voice-mode-btn.active { background: var(--surface); color: var(--navy); box-shadow: var(--shadow-sm); }
-
-/* Parse results */
-.parse-results { margin-top:16px; }
-.parse-item { display:flex; align-items:center; gap:10px; padding:10px 14px; background: var(--surface-alt); border-radius: var(--radius-sm); margin-bottom:8px; border:1px solid var(--border); cursor:pointer; transition: var(--transition); }
-.parse-item:hover { border-color: var(--teal); background: var(--teal-light); }
-.parse-item.selected { border-color: var(--teal); background: var(--teal-light); }
-.parse-item .parse-check { width:20px; height:20px; border:2px solid #d0d0d0; border-radius:4px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; color:transparent; }
-.parse-item.selected .parse-check { background: var(--teal); border-color: var(--teal); color:#fff; }
-.parse-item .parse-cat { font-size:11px; font-weight:600; padding:2px 8px; border-radius:10px; flex-shrink:0; }
-.parse-item .parse-text { flex:1; font-size:14px; }
-.parse-item .parse-edit { font-size:11px; color: var(--text-secondary); cursor:pointer; flex-shrink:0; }
-.parse-item .parse-edit:hover { color: var(--teal); }
-
-/* Folder results */
-.folder-file { display:flex; align-items:center; gap:8px; padding:6px 10px; font-size:13px; border-bottom:1px solid var(--border); }
-.folder-file:hover { background: var(--surface-alt); }
-.folder-file .file-icon { font-size:16px; flex-shrink:0; }
-
 /* Toast */
 .toast { position:fixed; top:24px; left:50%; transform:translateX(-50%); background: var(--navy); color:#fff; padding:12px 24px; border-radius:24px; font-size:14px; font-weight:500; z-index:9999; animation: toastIn .3s ease, toastOut .3s ease 2.2s forwards; box-shadow: var(--shadow-lg); }
 .toast.success { background: #1a7a3a; }
 .toast.error { background: var(--coral); }
-
-/* Floating voice button */
-.float-voice { position:fixed; bottom:32px; right:32px; width:60px; height:60px; border-radius:50%; background: var(--navy); color:#fff; border:none; cursor:pointer; box-shadow: 0 8px 24px rgba(26,39,68,.3); z-index:150; display:flex; align-items:center; justify-content:center; font-size:24px; transition: var(--transition); }
-.float-voice:hover { transform:scale(1.1); box-shadow: 0 12px 32px rgba(26,39,68,.4); background: var(--navy-light); }
-.float-voice .tooltip { position:absolute; right:72px; background: var(--navy); color:#fff; padding:6px 14px; border-radius:6px; font-size:13px; white-space:nowrap; opacity:0; pointer-events:none; transition: opacity .2s; }
-.float-voice:hover .tooltip { opacity:1; }
 
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
@@ -261,9 +224,6 @@ body.dark { --bg: #1a1d23; --surface: #252830; --surface-alt: #2a2d35; --navy: #
 body.dark .stat-card, body.dark .work-list, body.dark .quick-record, body.dark .sidebar-card, body.dark .panel-card, body.dark .modal { background: var(--surface); border-color: var(--border); }
 body.dark input, body.dark select, body.dark textarea { background: var(--surface-alt); color: var(--text); border-color: var(--border); }
 body.dark .work-item:hover, body.dark .todo-item:hover { background: var(--surface-alt); }
-body.dark .parse-item { background: var(--surface-alt); border-color: var(--border); }
-body.dark .parse-item:hover { background: var(--teal-light); }
-body.dark .voice-text { background: var(--surface-alt); }
 body.dark .monthly-table th { border-bottom-color: var(--border); }
 body.dark .monthly-table td { border-bottom-color: var(--border); }
 body.dark .monthly-table tr:hover td { background: var(--surface-alt); }
@@ -306,7 +266,6 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
   .stats-row { grid-template-columns: repeat(2,1fr); }
   .header { padding:0 12px; }
   .quick-search { display:none; }
-  .float-voice { bottom: 80px; right: 16px; width: 50px; height: 50px; font-size: 20px; }
   .mobile-nav { display: block; }
   .quick-record { flex-wrap: wrap; }
   .quick-record input, .quick-record select { flex: 1 1 auto; min-width: 100px; }
@@ -415,9 +374,6 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
       </a>
       <a class="platform-tile" href="#" onclick="closePlatformPanel();openAnnualReport();">
         <span class="tile-icon">📈</span>年度报表
-      </a>
-      <a class="platform-tile" href="#" onclick="closePlatformPanel();openVoiceModal();">
-        <span class="tile-icon">🎤</span>语音输入
       </a>
       <a class="platform-tile" href="#" onclick="closePlatformPanel();openSyncSettings();">
         <span class="tile-icon">☁️</span>云同步
@@ -528,7 +484,7 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
           <button class="btn btn-sm btn-outline" onclick="batchDelete()">批量删除</button>
           <button class="btn btn-sm btn-outline" onclick="toggleBatchMode()">取消</button>
         </div>
-        <div class="work-list" id="workList"><div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">📝</div><div>还没有工作记录</div><div style="font-size:12px;color:#bbb;margin-top:4px;">在上方输入框快速记录，或点击右下角🎤语音输入</div></div></div>
+        <div class="work-list" id="workList"><div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">📝</div><div>还没有工作记录</div><div style="font-size:12px;color:#bbb;margin-top:4px;">在上方输入框快速记录工作内容</div></div></div>
       </div>
     </div>
 
@@ -548,7 +504,7 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
             <button class="btn btn-outline btn-sm" onclick="toggleShowDone()" id="showDoneBtn">显示已完成</button>
           </div>
         </div>
-        <div class="work-list" id="todoList"><div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">✅</div><div>暂无待办事项</div><div style="font-size:12px;color:#bbb;margin-top:4px;">点击右下角🎤语音规划今日工作</div></div></div>
+        <div class="work-list" id="todoList"><div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">✅</div><div>暂无待办事项</div><div style="font-size:12px;color:#bbb;margin-top:4px;">在上方添加待办事项</div></div></div>
       </div>
     </div>
 
@@ -580,7 +536,6 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
     </div>
     <div class="panel-card">
       <h3>快捷工具</h3>
-      <div class="quick-link" onclick="openVoiceModal()"><span class="ql-icon" style="background:var(--coral-light)">🎤</span><span>语音输入（复盘/规划）</span></div>
       <div class="quick-link" onclick="openDetailModal()"><span class="ql-icon" style="background:var(--teal-light)">📝</span><span>添加详细工作记录</span></div>
       <div class="quick-link" onclick="openMonthlyReport()"><span class="ql-icon" style="background:var(--gold-light)">📊</span><span>生成本月汇总报告</span></div>
       <div class="quick-link" onclick="openAnnualReport()"><span class="ql-icon" style="background:#e0f2fe">📈</span><span>生成年度报表</span></div>
@@ -605,18 +560,11 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
         <div><kbd style="background:var(--slate-light);padding:1px 6px;border-radius:3px;font-size:11px;">Ctrl+N</kbd> 新建记录</div>
         <div><kbd style="background:var(--slate-light);padding:1px 6px;border-radius:3px;font-size:11px;">Ctrl+K</kbd> 搜索</div>
         <div><kbd style="background:var(--slate-light);padding:1px 6px;border-radius:3px;font-size:11px;">Ctrl+D</kbd> 暗色模式</div>
-        <div><kbd style="background:var(--slate-light);padding:1px 6px;border-radius:3px;font-size:11px;">Ctrl+Shift+V</kbd> 语音输入</div>
         <div><kbd style="background:var(--slate-light);padding:1px 6px;border-radius:3px;font-size:11px;">Esc</kbd> 关闭弹窗</div>
       </div>
     </div>
-  </aside>
+</aside>
 </div>
-
-<!-- Floating voice button -->
-<button class="float-voice" onclick="openVoiceModal()" title="语音输入">
-  <span class="tooltip">点击语音输入</span>
-  🎤
-</button>
 
 <!-- Mobile Bottom Navigation -->
 <nav class="mobile-nav" id="mobileNav">
@@ -630,9 +578,6 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
     <button class="mobile-nav-item" onclick="switchTab('recap',document.querySelectorAll('.tab-btn')[2])">
       <span class="nav-icon">🤖</span>复盘
     </button>
-    <button class="mobile-nav-item" onclick="openVoiceModal()">
-      <span class="nav-icon">🎤</span>语音
-    </button>
     <button class="mobile-nav-item" onclick="openPlatformPanel()">
       <span class="nav-icon">🏥</span>平台
     </button>
@@ -644,32 +589,6 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
     </button>
   </div>
 </nav>
-
-<!-- ===== VOICE MODAL ===== -->
-<div class="modal-overlay" id="voiceModal" style="display:none" onclick="if(event.target===this)closeVoiceModal()">
-  <div class="modal modal-wide">
-    <h2>🎤 语音输入 <span style="font-size:13px;font-weight:400;color:var(--text-secondary);">— 逐条录音，边说边整理</span></h2>
-    <div class="voice-mode-toggle">
-      <button class="voice-mode-btn active" id="modePlan" onclick="setVoiceMode('plan')">📝 规划模式</button>
-      <button class="voice-mode-btn" id="modeReview" onclick="setVoiceMode('review')">📋 复盘模式</button>
-    </div>
-    <div class="voice-mic-wrap">
-      <div class="voice-mic" id="voiceMic" onclick="toggleRecording()">🎙️</div>
-      <div class="voice-status" id="voiceStatus">点击麦克风开始说第一条</div>
-    </div>
-    <div class="voice-text" id="voiceText" style="display:none;">等待语音输入...</div>
-    <div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-secondary);">
-      已识别 <strong id="voiceCount" style="color:var(--teal);">0</strong> 条 | 
-      <a href="#" onclick="event.preventDefault();undoLastVoiceItem()" style="color:var(--coral);text-decoration:none;">撤销上一条</a>
-    </div>
-    <div class="parse-results" id="parseResults" style="display:none;"></div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" onclick="clearAllVoiceItems()">全部清空</button>
-      <button class="btn btn-primary" id="voiceSaveBtn" onclick="saveVoiceResults()" style="display:none;">确认并保存</button>
-      <button class="btn btn-outline" onclick="closeVoiceModal()">关闭</button>
-    </div>
-  </div>
-</div>
 
 <!-- ===== EDIT MODAL ===== -->
 <div class="modal-overlay" id="editModal" style="display:none" onclick="if(event.target===this)closeEditModal()">
@@ -814,8 +733,6 @@ let todos = JSON.parse(localStorage.getItem(TODOS_KEY) || '[]');
 let currentFilter = 'all';
 let currentTab = 'records';
 let showDone = false;
-let voiceMode = 'plan'; // 'plan' | 'review'
-let parsedItems = [];
 let folderFiles = [];
 let deletedRecord = null; // For undo delete
 let batchMode = false;
@@ -888,9 +805,6 @@ document.addEventListener('keydown', function(e) {
   } else if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
     e.preventDefault();
     toggleDarkMode();
-  } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'V') {
-    e.preventDefault();
-    openVoiceModal();
   } else if (e.key === 'Escape') {
     closeAllModals();
   }
@@ -898,8 +812,6 @@ document.addEventListener('keydown', function(e) {
 
 function closeAllModals() {
   document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-  if (isRecording && recognition) { recognitionStopped = true; isRecording = false; recognition.stop(); }
-  resetRecordingUI();
 }
 
 document.getElementById('quickDate').value = getToday();
@@ -1519,7 +1431,7 @@ function renderTodos() {
   const container = document.getElementById('todoList');
   let filtered = todos;
   if (!showDone) filtered = filtered.filter(t => !t.done);
-  if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">✅</div><div>暂无待办事项</div><div style="font-size:12px;color:#bbb;margin-top:4px;">点击右下角🎤语音规划今日工作</div></div>'; renderTodoBadge(); return; }
+  if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">✅</div><div>暂无待办事项</div><div style="font-size:12px;color:#bbb;margin-top:4px;">在上方添加待办事项</div></div>'; renderTodoBadge(); return; }
   container.innerHTML = filtered.map(t => `
     <div class="todo-item">
       <div class="todo-check${t.done?' done':''}" onclick="toggleTodo(${t.id})">${t.done?'✓':''}</div>
@@ -1611,316 +1523,6 @@ function smartClassify(text) {
     if (score > bestScore) { bestScore = score; bestCat = rule.cat; }
   });
   return bestCat;
-}
-
-function extractData(text) {
-  const patterns = [
-    /(\d{1,3}(?:\.\d{1,2})?\s*%)/g,
-    /(\d+次)/g,
-    /(\d+人)/g,
-    /(\d+例)/g,
-    /(\d+条)/g,
-    /(\d+篇)/g,
-    /(\d+份)/g,
-    /(\d+张)/g,
-    /(\d+个)/g,
-    /(阅读量\s*\d+)/g,
-    /(满意度\s*\d{1,3}(?:\.\d{1,2})?\s*%)/g,
-    /(筛查率\s*\d{1,3}(?:\.\d{1,2})?\s*%)/g,
-    /(达标率\s*\d{1,3}(?:\.\d{1,2})?\s*%)/g,
-    /(完成\s*\d{1,3}(?:\.\d{1,2})?\s*%)/g,
-  ];
-  let found = [];
-  patterns.forEach(p => {
-    const matches = text.match(p);
-    if (matches) found = found.concat(matches);
-  });
-  return [...new Set(found)].join('，');
-}
-
-function parseVoiceText(text) {
-  // Split by common delimiters
-  const sentences = text
-    .split(/[。！？；\n,，、]/)
-    .map(s => s.trim())
-    .filter(s => s.length > 1);
-
-  if (sentences.length === 0 && text.trim().length > 1) {
-    sentences.push(text.trim());
-  }
-
-  return sentences.map(s => ({
-    text: s,
-    category: smartClassify(s),
-    data: extractData(s)
-  }));
-}
-
-// ===== VOICE RECOGNITION (Segment-by-Segment) =====
-let recognition = null;
-let isRecording = false;
-let recognitionStopped = false; // Prevent double processing
-
-function initRecognition() {
-  if (recognition) return;
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    document.getElementById('voiceStatus').textContent = '⚠️ 您的浏览器不支持语音识别';
-    document.getElementById('voiceText').style.display = 'block';
-    document.getElementById('voiceText').innerHTML = `
-      <div style="text-align:center;padding:10px;">
-        <p style="margin-bottom:8px;">请使用以下浏览器之一：</p>
-        <p style="font-size:13px;color:var(--text-secondary);">Chrome / Edge / 三星浏览器</p>
-        <p style="font-size:12px;color:var(--coral);margin-top:8px;">Safari 和 Firefox 暂不支持语音识别</p>
-        <p style="margin-top:12px;font-size:13px;">或使用下方<strong>文字逐条输入</strong>模式：</p>
-        <input type="text" id="voiceFallbackInput" placeholder="输入一条工作内容，回车添加..." 
-          style="width:100%;margin-top:6px;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;"
-          onkeydown="if(event.key==='Enter'){addVoiceFallbackItem();this.value='';}">
-        <button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="addVoiceFallbackItem()">添加此条</button>
-      </div>`;
-    document.getElementById('voiceMic').style.opacity = '0.4';
-    document.getElementById('voiceMic').onclick = null;
-    return false;
-  }
-  recognition = new SpeechRecognition();
-  recognition.lang = 'zh-CN';
-  recognition.interimResults = true;
-  recognition.continuous = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.onresult = (event) => {
-    let finalText = '';
-    let interimText = '';
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      if (event.results[i].isFinal) {
-        finalText += event.results[i][0].transcript;
-      } else {
-        interimText += event.results[i][0].transcript;
-      }
-    }
-    const displayText = finalText || interimText;
-    document.getElementById('voiceText').style.display = 'block';
-    document.getElementById('voiceText').innerHTML = displayText || '正在聆听...';
-    if (finalText) {
-      document.getElementById('voiceText').setAttribute('data-final', finalText);
-    }
-  };
-
-  recognition.onerror = (event) => {
-    console.error('Speech error:', event.error);
-    if (event.error === 'no-speech') {
-      document.getElementById('voiceStatus').textContent = '未检测到语音，请点击麦克风重试';
-    } else if (event.error === 'not-allowed') {
-      showToast('请允许麦克风权限','error');
-    } else if (event.error === 'audio-capture') {
-      showToast('未检测到麦克风设备','error');
-    } else if (event.error === 'network') {
-      showToast('网络连接失败，语音识别需要网络','error');
-    }
-    resetRecordingUI();
-  };
-
-  recognition.onend = () => {
-    if (!recognitionStopped) {
-      processVoiceSegment();
-    }
-    recognitionStopped = false;
-    resetRecordingUI();
-  };
-  return true;
-}
-
-function toggleRecording() {
-  if (!initRecognition()) return;
-  if (!recognition) return;
-
-  if (isRecording) {
-    // Stop current segment - mark as manually stopped
-    recognitionStopped = true;
-    isRecording = false;
-    recognition.stop();
-    // Process the segment immediately since onend won't process it
-    processVoiceSegment();
-  } else {
-    // Start new segment
-    recognitionStopped = false;
-    isRecording = true;
-    document.getElementById('voiceText').style.display = 'block';
-    document.getElementById('voiceText').setAttribute('data-final','');
-    document.getElementById('voiceText').innerHTML = '🎧 正在聆听...';
-    document.getElementById('voiceStatus').textContent = '录音中，说完点击麦克风停止';
-    document.getElementById('voiceStatus').classList.add('recording');
-    document.getElementById('voiceMic').classList.add('recording');
-    document.getElementById('voiceMic').textContent = '🔴';
-    try {
-      recognition.start();
-    } catch(e) {
-      console.error('Speech start error:', e);
-      resetRecordingUI();
-      document.getElementById('voiceStatus').textContent = '启动失败，请检查麦克风权限';
-      showToast('语音启动失败，请检查浏览器麦克风权限', 'error');
-    }
-  }
-}
-
-function processVoiceSegment() {
-  const finalText = document.getElementById('voiceText').getAttribute('data-final') || '';
-  if (finalText.trim()) {
-    const newItems = parseVoiceText(finalText);
-    parsedItems = parsedItems.concat(newItems);
-    renderParsedItems();
-    document.getElementById('voiceSaveBtn').style.display = 'inline-block';
-    document.getElementById('voiceCount').textContent = parsedItems.length;
-    document.getElementById('voiceStatus').textContent = `已识别 ${parsedItems.length} 条，点击麦克风继续说下一条`;
-  }
-}
-
-function resetRecordingUI() {
-  isRecording = false;
-  document.getElementById('voiceStatus').classList.remove('recording');
-  document.getElementById('voiceMic').classList.remove('recording');
-  document.getElementById('voiceMic').textContent = '🎙️';
-  if (parsedItems.length === 0) {
-    document.getElementById('voiceStatus').textContent = '点击麦克风开始说第一条';
-  } else {
-    document.getElementById('voiceStatus').textContent = `已识别 ${parsedItems.length} 条，点击麦克风继续说下一条`;
-  }
-}
-
-function renderParsedItems() {
-  const container = document.getElementById('parseResults');
-  container.style.display = 'block';
-  if (parsedItems.length === 0) {
-    container.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;">等待语音输入...</div>';
-    return;
-  }
-  container.innerHTML = `
-    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px;">
-      ${voiceMode==='review'?'智能识别为以下工作记录（点击可调整分类，点击条目取消选中）：':'智能识别为以下待办事项（点击可调整分类）：'}
-    </div>
-    ${parsedItems.map((item,i) => `
-      <div class="parse-item selected" onclick="toggleParseItem(${i},this)" data-idx="${i}">
-        <div class="parse-check">✓</div>
-        <span class="parse-cat ${getCategoryTag(item.category)}">${getCategoryName(item.category)}</span>
-        <span class="parse-text">${escapeHtml(item.text)}</span>
-        <span class="parse-edit" onclick="event.stopPropagation();cycleCategory(${i})">🔄</span>
-      </div>
-    `).join('')}
-  `;
-  document.getElementById('voiceCount').textContent = parsedItems.length;
-  document.getElementById('voiceSaveBtn').style.display = parsedItems.length > 0 ? 'inline-block' : 'none';
-}
-
-function toggleParseItem(idx, el) {
-  el.classList.toggle('selected');
-}
-
-function cycleCategory(idx) {
-  const cats = ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','qita','duihua'];
-  const current = cats.indexOf(parsedItems[idx].category);
-  parsedItems[idx].category = cats[(current + 1) % cats.length];
-  renderParsedItems();
-}
-
-function undoLastVoiceItem() {
-  if (parsedItems.length === 0) return;
-  parsedItems.pop();
-  renderParsedItems();
-  if (parsedItems.length === 0) {
-    document.getElementById('voiceSaveBtn').style.display = 'none';
-    document.getElementById('voiceStatus').textContent = '点击麦克风开始说第一条';
-  }
-}
-
-// Fallback text input for browsers without speech recognition
-function addVoiceFallbackItem() {
-  const input = document.getElementById('voiceFallbackInput');
-  if (!input) return;
-  const text = input.value.trim();
-  if (!text) return;
-  const newItems = parseVoiceText(text);
-  parsedItems = parsedItems.concat(newItems);
-  renderParsedItems();
-  document.getElementById('voiceSaveBtn').style.display = 'inline-block';
-  document.getElementById('voiceCount').textContent = parsedItems.length;
-  document.getElementById('voiceStatus').textContent = `已添加 ${parsedItems.length} 条，继续输入...`;
-  input.value = '';
-  input.focus();
-}
-
-function clearAllVoiceItems() {
-  parsedItems = [];
-  document.getElementById('voiceText').style.display = 'none';
-  document.getElementById('voiceText').setAttribute('data-final','');
-  document.getElementById('voiceText').innerHTML = '';
-  document.getElementById('parseResults').style.display = 'none';
-  document.getElementById('parseResults').innerHTML = '';
-  document.getElementById('voiceSaveBtn').style.display = 'none';
-  document.getElementById('voiceCount').textContent = '0';
-  document.getElementById('voiceStatus').textContent = '点击麦克风开始说第一条';
-}
-
-function saveVoiceResults() {
-  const selectedItems = [];
-  document.querySelectorAll('.parse-item.selected').forEach(el => {
-    const idx = parseInt(el.getAttribute('data-idx'));
-    if (idx >= 0 && idx < parsedItems.length) selectedItems.push(parsedItems[idx]);
-  });
-
-  if (selectedItems.length === 0) { showToast('请至少选择一条记录','error'); return; }
-
-  const today = getToday();
-  if (voiceMode === 'review') {
-    selectedItems.forEach(item => {
-      records.unshift({
-        id: Date.now() + Math.random(),
-        title: item.text,
-        content: '',
-        category: item.category,
-        date: today,
-        time: getNow(),
-        data: item.data || '',
-        link: ''
-      });
-    });
-    saveRecords();
-    showToast(`已保存 ${selectedItems.length} 条工作记录`);
-  } else {
-    selectedItems.forEach(item => {
-      todos.unshift({
-        id: Date.now() + Math.random(),
-        title: item.text,
-        category: item.category,
-        date: today,
-        time: getNow(),
-        done: false
-      });
-    });
-    saveTodos();
-    showToast(`已生成 ${selectedItems.length} 条待办事项`);
-  }
-
-  clearAllVoiceItems();
-  closeVoiceModal();
-  renderAll();
-}
-
-function setVoiceMode(mode) {
-  voiceMode = mode;
-  document.getElementById('modeReview').classList.toggle('active', mode === 'review');
-  document.getElementById('modePlan').classList.toggle('active', mode === 'plan');
-  clearAllVoiceItems();
-}
-
-function openVoiceModal() {
-  document.getElementById('voiceModal').style.display = 'flex';
-  clearAllVoiceItems();
-  initRecognition();
-}
-function closeVoiceModal() {
-  if (isRecording) { recognitionStopped = true; isRecording = false; if (recognition) recognition.stop(); }
-  resetRecordingUI();
-  document.getElementById('voiceModal').style.display = 'none';
 }
 
 // ===== FOLDER PICKER =====
@@ -2569,7 +2171,7 @@ function generateRecap() {
     learningSuggestions.push('✍️ 参加学术写作工作坊，提升论文写作与投稿技巧');
   }
   if (activeCats.includes('bisai') || activeCats.includes('gzh')) {
-    learningSuggestions.push('🎤 学习演讲表达与PPT设计技巧，提升展示效果');
+    learningSuggestions.push('学习演讲表达与PPT设计技巧，提升展示效果');
     learningSuggestions.push('📱 关注新媒体运营知识，提升内容创作与传播能力');
   }
   if (learningSuggestions.length === 0) {
