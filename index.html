@@ -777,7 +777,7 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
     <h2>云同步设置</h2>
     <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.8;">
       配置 GitHub Personal Access Token 实现跨设备数据同步。<br>
-      <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--teal);">点击这里创建 Token</a>，勾选 <strong>gist</strong> 权限即可。
+      <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--teal);">点击这里创建 Token</a>，勾选 <strong>repo</strong> 权限即可（用于读写仓库中的同步文件）。
     </div>
     <div class="form-group">
       <label>GitHub Token</label>
@@ -1005,10 +1005,11 @@ function saveEditRecord() {
 function saveRecords() { localStorage.setItem(RECORDS_KEY, JSON.stringify(records)); triggerSync(); }
 function saveTodos() { localStorage.setItem(TODOS_KEY, JSON.stringify(todos)); triggerSync(); }
 
-// ===== CROSS-DEVICE SYNC (GitHub Gist API) =====
-const GIST_ID_KEY = 'taotao_gist_id';
-const GIST_TOKEN_KEY = 'taotao_gist_token';
-const GIST_FILENAME = 'workbench-data.json';
+// ===== CROSS-DEVICE SYNC (GitHub Contents API) =====
+const SYNC_TOKEN_KEY = 'taotao_gist_token'; // Keep old key for backward compatibility
+const SYNC_FILE_PATH = 'sync-data.json';
+const REPO_OWNER = '1005236118-glitch';
+const REPO_NAME = 'workbench';
 const SYNC_LAST_KEY = 'taotao_last_sync';
 const SYNC_QUEUE_KEY = 'taotao_sync_queue';
 const DELETED_IDS_KEY = 'taotao_deleted_ids';
@@ -1032,12 +1033,12 @@ function clearDeletedIds() {
   localStorage.removeItem(DELETED_IDS_KEY);
 }
 
-function getGistToken() {
-  return localStorage.getItem(GIST_TOKEN_KEY) || '';
+function getSyncToken() {
+  return localStorage.getItem(SYNC_TOKEN_KEY) || '';
 }
 
 function hasSyncToken() {
-  return !!getGistToken();
+  return !!getSyncToken();
 }
 
 function updateSyncUI(status, label) {
@@ -1055,8 +1056,8 @@ function triggerSync() {
   syncTimer = setTimeout(() => performSync(), 500);
 }
 
-async function gistRequest(method, path, body) {
-  const token = getGistToken();
+async function githubApiRequest(method, path, body) {
+  const token = getSyncToken();
   if (!token) throw new Error('未配置同步Token');
   const headers = {
     'Authorization': 'token ' + token,
@@ -1075,35 +1076,34 @@ async function gistRequest(method, path, body) {
   return resp.json();
 }
 
-async function getOrCreateGist() {
-  let gistId = localStorage.getItem(GIST_ID_KEY);
-  if (gistId) {
-    // Verify it still exists
-    try {
-      await gistRequest('GET', '/gists/' + gistId);
-      return gistId;
-    } catch(e) {
-      // Gist was deleted or token invalid, create new one
-      localStorage.removeItem(GIST_ID_KEY);
-    }
+async function getRemoteData() {
+  try {
+    const data = await githubApiRequest('GET',
+      `/repos/${REPO_OWNER}/${REPO_NAME}/contents/${SYNC_FILE_PATH}`);
+    const content = decodeURIComponent(escape(atob(data.content)));
+    return JSON.parse(content);
+  } catch (e) {
+    if (e.message.includes('404')) return { records: [], todos: [], updatedAt: '1970-01-01' };
+    throw e;
   }
-  // Create new gist
-  const gist = await gistRequest('POST', '/gists', {
-    description: '陶陶工作台 - 跨设备数据同步',
-    public: false,
-    files: {
-      [GIST_FILENAME]: {
-        content: JSON.stringify({
-          records: records,
-          todos: todos,
-          updatedAt: new Date().toISOString(),
-          device: getDeviceInfo()
-        })
-      }
-    }
+}
+
+async function saveRemoteData(data) {
+  const jsonStr = JSON.stringify(data);
+  const content = btoa(unescape(encodeURIComponent(jsonStr)));
+  let sha = '';
+  try {
+    const existing = await githubApiRequest('GET',
+      `/repos/${REPO_OWNER}/${REPO_NAME}/contents/${SYNC_FILE_PATH}`);
+    sha = existing.sha;
+  } catch (e) { /* File doesn't exist yet */ }
+
+  return githubApiRequest('PUT',
+    `/repos/${REPO_OWNER}/${REPO_NAME}/contents/${SYNC_FILE_PATH}`, {
+    message: 'Sync from ' + getDeviceInfo().name,
+    content,
+    sha: sha || undefined
   });
-  localStorage.setItem(GIST_ID_KEY, gist.id);
-  return gist.id;
 }
 
 function getDeviceInfo() {
@@ -1167,15 +1167,12 @@ async function performSync() {
   updateSyncUI('syncing', '同步中...');
 
   try {
-    const gistId = await getOrCreateGist();
-
-    // Step 1: Pull remote data
-    const gist = await gistRequest('GET', '/gists/' + gistId);
+    // Step 1: Pull remote data from repo file
     let remoteData = { records: [], todos: [] };
-    if (gist.files && gist.files[GIST_FILENAME] && gist.files[GIST_FILENAME].content) {
-      try {
-        remoteData = JSON.parse(gist.files[GIST_FILENAME].content);
-      } catch(e) { /* corrupted data, use empty */ }
+    try {
+      remoteData = await getRemoteData();
+    } catch(e) {
+      console.warn('Failed to fetch remote data, using local only:', e);
     }
 
     // Step 2: Merge local and remote data
@@ -1194,25 +1191,18 @@ async function performSync() {
     localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
     localStorage.setItem(TODOS_KEY, JSON.stringify(todos));
 
-    // Step 4: Push merged data to gist
+    // Step 4: Push merged data to repo
     const now = new Date().toISOString();
-    await gistRequest('PATCH', '/gists/' + gistId, {
-      files: {
-        [GIST_FILENAME]: {
-          content: JSON.stringify({
-            records: records,
-            todos: todos,
-            updatedAt: now,
-            device: getDeviceInfo()
-          })
-        }
-      }
+    await saveRemoteData({
+      records: records,
+      todos: todos,
+      updatedAt: now,
+      device: getDeviceInfo()
     });
 
     localStorage.setItem(SYNC_LAST_KEY, now);
     syncQueue = [];
     localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(syncQueue));
-    // Clear deleted IDs - deletion is now reflected in Gist
     clearDeletedIds();
     updateSyncUI('', '已同步');
 
@@ -1260,6 +1250,13 @@ setInterval(() => {
   }
 }, 2 * 60 * 1000);
 
+// Sync when page becomes visible (user switches back to tab)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && navigator.onLine && !isSyncing && hasSyncToken()) {
+    performSync();
+  }
+});
+
 // Initial sync on page load (after a short delay)
 setTimeout(() => {
   if (hasSyncToken()) {
@@ -1276,7 +1273,7 @@ setTimeout(() => {
 // ===== SYNC SETTINGS =====
 function openSyncSettings() {
   document.getElementById('syncSettingsModal').style.display = 'flex';
-  const token = getGistToken();
+  const token = getSyncToken();
   document.getElementById('syncTokenInput').value = token ? token.substring(0, 8) + '...' + token.substring(token.length - 4) : '';
   document.getElementById('syncTokenInput').dataset.editing = token ? 'false' : 'true';
   if (token) {
@@ -1310,13 +1307,10 @@ function saveSyncToken() {
     return;
   }
   
-  localStorage.setItem(GIST_TOKEN_KEY, token);
+  localStorage.setItem(SYNC_TOKEN_KEY, token);
   closeSyncSettings();
   showToast('同步Token已保存，开始同步...');
   updateSyncUI('syncing', '同步中...');
-  
-  // Clear old gist ID so we create a fresh one with the new token
-  localStorage.removeItem(GIST_ID_KEY);
   performSync();
 }
 
