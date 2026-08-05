@@ -1,7 +1,17 @@
 // 数据注入：由 Trae 助手自动生成
 // 自动识别对话中的工作内容，分类后注入工作台
-window.__INJECT_VERSION__ = 2;
+window.__INJECT_VERSION__ = 3;
 window.__INJECT_RECORDS__ = [
+  {
+    id: 1754391000001,
+    title: "修复跨设备同步：从Gist API迁移到GitHub Contents API",
+    content: "诊断发现Token无gist权限导致手机端和电脑端无法同步。将同步机制从GitHub Gist API迁移到GitHub Contents API，通过仓库中sync-data.json文件进行数据读写，Token只需repo权限即可。添加页面可见性变化时自动同步，支持Unicode Base64编解码",
+    category: "biaozhun",
+    date: "2026-08-05",
+    time: "2026-08-05T12:00:00.000Z",
+    data: "修复跨设备同步，支持非同一局域网",
+    link: "https://1005236118-glitch.github.io/workbench/"
+  },
   {
     id: 1754183100001,
     title: "实现工作台跨设备数据同步与离线同步功能",
