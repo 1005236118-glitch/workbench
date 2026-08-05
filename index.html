@@ -1102,7 +1102,7 @@ async function getRemoteData() {
     const content = base64ToUtf8(data.content);
     return JSON.parse(content);
   } catch (e) {
-    if (e.message.includes('404')) return { records: [], todos: [], updatedAt: '1970-01-01' };
+    if (e.message.includes('404')) return { records: [], todos: [], deletedIds: [], updatedAt: '1970-01-01' };
     throw e;
   }
 }
@@ -1135,15 +1135,19 @@ function getDeviceInfo() {
 }
 
 function mergeData(localData, remoteData) {
+  // Merge deleted IDs from both sides
+  const remoteDeletedIds = remoteData.deletedIds || [];
+  remoteDeletedIds.forEach(id => deletedIds.add(id));
+  localStorage.setItem(DELETED_IDS_KEY, JSON.stringify([...deletedIds]));
+
   // Merge records by id, keeping the one with later time
-  // But filter out records that were explicitly deleted by the user
+  // Filter out records that were deleted on either device
   const merged = {};
   const localRecords = localData.records || [];
   const remoteRecords = remoteData.records || [];
 
   [...localRecords, ...remoteRecords].forEach(r => {
     if (!r.id) return;
-    // Skip records that user has explicitly deleted
     if (deletedIds.has(r.id)) return;
     if (!merged[r.id] || new Date(r.time) > new Date(merged[r.id].time)) {
       merged[r.id] = r;
@@ -1187,7 +1191,7 @@ async function performSync() {
 
   try {
     // Step 1: Pull remote data from repo file
-    let remoteData = { records: [], todos: [] };
+    let remoteData = { records: [], todos: [], deletedIds: [] };
     try {
       remoteData = await getRemoteData();
     } catch(e) {
@@ -1210,11 +1214,12 @@ async function performSync() {
     localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
     localStorage.setItem(TODOS_KEY, JSON.stringify(todos));
 
-    // Step 4: Push merged data to repo
+    // Step 4: Push merged data to repo (include deletedIds)
     const now = new Date().toISOString();
     await saveRemoteData({
       records: records,
       todos: todos,
+      deletedIds: [...deletedIds],
       updatedAt: now,
       device: getDeviceInfo()
     });
@@ -1222,7 +1227,6 @@ async function performSync() {
     localStorage.setItem(SYNC_LAST_KEY, now);
     syncQueue = [];
     localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(syncQueue));
-    clearDeletedIds();
     updateSyncUI('', '已同步');
 
     if (hadChanges) {
