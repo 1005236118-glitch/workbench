@@ -543,6 +543,7 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <div class="section-title">待办事项</div>
           <div style="display:flex;gap:8px;align-items:center;">
+            <button class="btn btn-gold btn-sm" onclick="syncTodosToRecords()" title="将未完成的待办事项同步为工作记录" id="syncTodosBtn">📋 同步到工作记录</button>
             <select id="todoDateFilter" onchange="renderTodos()" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;font-size:12px;font-family:inherit;cursor:pointer;outline:none;">
               <option value="all">全部日期</option>
               <option value="today">今日</option>
@@ -1440,6 +1441,46 @@ function toggleShowDone() {
   showDone = !showDone;
   document.getElementById('showDoneBtn').textContent = showDone ? '隐藏已完成' : '显示已完成';
   renderTodos();
+}
+
+// ===== SYNC TODOS TO WORK RECORDS =====
+function syncTodosToRecords() {
+  const undone = todos.filter(t => !t.done);
+  if (undone.length === 0) {
+    showToast('没有未完成的待办事项', 'error');
+    return;
+  }
+  
+  const today = getToday();
+  let converted = 0;
+  undone.forEach(todo => {
+    // Check if already converted to avoid duplicates
+    const alreadyExists = records.find(r => 
+      r.fromTodo && r.title === todo.title && r.date === (todo.date || today)
+    );
+    if (!alreadyExists) {
+      records.unshift({
+        id: Date.now() + Math.random(),
+        title: todo.title,
+        content: '',
+        category: todo.category,
+        date: todo.date || today,
+        time: getNow(),
+        data: '',
+        link: '',
+        fromTodo: true
+      });
+      converted++;
+    }
+  });
+  
+  if (converted > 0) {
+    saveRecords();
+    showToast('已同步 ' + converted + ' 条待办到工作记录');
+    renderAll();
+  } else {
+    showToast('待办已全部同步，无需重复操作');
+  }
 }
 
 // ===== TODO EDITING =====

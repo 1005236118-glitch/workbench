@@ -1,6 +1,6 @@
 // 数据注入：由 Trae 助手自动生成
 // 自动识别对话中的工作内容，分类后注入工作台
-window.__INJECT_VERSION__ = 5;
+window.__INJECT_VERSION__ = 6;
 window.__INJECT_RECORDS__ = [
   {
     id: 1754391000001,
@@ -55,11 +55,48 @@ window.__INJECT_RECORDS__ = [
   {
     id: 1754392000002,
     title: "修复工作记录自动同步、待办事项持久化及手机端加载优化",
-    content: "修复注入机制版本号问题导致新记录无法导入，优化GitHub Pages同步按钮触发注入；修复待办事项日期过滤逻辑；优化手机端加载速度，添加资源预连接和加载骨架屏",
+    content: "修复注入机制版本号问题导致新记录无法导入，改为逐条检查记录ID；优化GitHub Pages同步按钮触发注入；修复待办事项日期过滤逻辑，添加日期筛选；优化手机端加载速度，添加资源预连接、DNS预解析、加载骨架屏，SW改为缓存优先策略",
     category: "biaozhun",
     date: "2026-08-05",
     time: "2026-08-05T19:30:00.000Z",
     data: "修复三大核心问题",
     link: "https://1005236118-glitch.github.io/workbench/"
+  },
+  {
+    id: 1754392000003,
+    title: "实现待办事项与Trae助手任务同步到工作记录",
+    content: "添加「同步到工作记录」按钮，一键将未完成待办转为工作记录，支持去重检查避免重复；将Trae助手任务列表自动注入工作记录，实现电脑端同步到工作记录后手机端自动同步的完整链路",
+    category: "biaozhun",
+    date: "2026-08-05",
+    time: "2026-08-05T20:00:00.000Z",
+    data: "同步逻辑：电脑端→工作记录→GitHub→手机端",
+    link: "https://1005236118-glitch.github.io/workbench/"
+  },
+  {
+    id: 1754392000004,
+    title: "Trae任务：添加待办事项同步到工作记录按钮",
+    content: "在待办事项区域添加金色「同步到工作记录」按钮，实现syncTodosToRecords函数，支持去重检查、批量转换未完成待办为工作记录",
+    category: "biaozhun",
+    date: "2026-08-05",
+    time: "2026-08-05T20:00:00.000Z",
+    fromTask: true
+  },
+  {
+    id: 1754392000005,
+    title: "Trae任务：将Trae助手任务列表注入工作记录",
+    content: "更新data-inject.js注入文件，将本次对话中Trae助手的任务列表以工作记录形式注入，标记fromTask字段便于追溯",
+    category: "biaozhun",
+    date: "2026-08-05",
+    time: "2026-08-05T20:00:00.000Z",
+    fromTask: true
+  },
+  {
+    id: 1754392000006,
+    title: "Trae任务：提交并推送所有修改到GitHub",
+    content: "完成index.html功能开发和data-inject.js数据注入后，提交代码并推送到GitHub仓库，确保手机端可通过同步获取最新数据",
+    category: "biaozhun",
+    date: "2026-08-05",
+    time: "2026-08-05T20:00:00.000Z",
+    fromTask: true
   }
 ];
