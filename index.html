@@ -17,7 +17,6 @@
 <link rel="dns-prefetch" href="https://fonts.googleapis.com">
 <link rel="dns-prefetch" href="https://api.github.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="./data-inject.js"></script>
 <style>
 /* Fallback for offline - system fonts */
 @font-face { font-family: 'Noto Sans SC Fallback'; src: local('PingFang SC'), local('Microsoft YaHei'), local('Hiragino Sans GB'); }
@@ -1197,10 +1196,6 @@ async function performSync() {
 }
 
 async function manualSync() {
-  // First, apply any injected records from data-inject.js
-  applyInjectedRecords();
-  renderAll();
-  
   if (!hasSyncToken()) {
     openSyncSettings();
     return;
@@ -2296,29 +2291,6 @@ function generateRecap() {
 
   container.innerHTML = html;
 }
-
-// ===== INIT =====
-// Data injection: merge records injected by Trae assistant
-// Checks each record individually to avoid missing new records when version doesn't change
-function applyInjectedRecords() {
-  const injectedRecords = window.__INJECT_RECORDS__ || [];
-  if (injectedRecords.length === 0) return;
-  
-  let merged = 0;
-  injectedRecords.forEach(ir => {
-    if (!records.find(r => r.id === ir.id)) {
-      records.unshift(ir);
-      merged++;
-    }
-  });
-  if (merged > 0) {
-    saveRecords();
-    showToast('已从对话中导入 ' + merged + ' 条工作记录');
-  }
-}
-
-// Apply on page load
-applyInjectedRecords();
 
 renderAll();
 
