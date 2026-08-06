@@ -12,6 +12,10 @@
 <link rel="icon" type="image/svg+xml" href="./icon-192.svg">
 <link rel="apple-touch-icon" href="./icon-192.svg">
 <title>陶陶的工作台 - APN智能工作中心</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://fonts.googleapis.com">
+<link rel="dns-prefetch" href="https://api.github.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="./data-inject.js"></script>
 <style>
@@ -340,9 +344,47 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
 @media (max-width:600px) {
   .ppt-ref-grid { grid-template-columns:1fr; }
 }
+
+/* Loading Skeleton */
+.loading-skeleton { padding: 20px 24px; max-width: 1600px; margin: 0 auto; }
+.sk-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 16px 0; }
+.sk-card { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 16px; }
+.sk-line { height: 14px; background: linear-gradient(90deg, var(--border) 25%, #e8e8e8 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 4px; margin-bottom: 10px; }
+.sk-line:last-child { margin-bottom: 0; }
+.sk-w20 { width: 20%; }
+.sk-w30 { width: 30%; }
+.sk-w40 { width: 40%; }
+.sk-w45 { width: 45%; }
+.sk-w50 { width: 50%; }
+.sk-w60 { width: 60%; }
+.sk-w65 { width: 65%; }
+.sk-w70 { width: 70%; }
+.sk-w80 { width: 80%; }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 </style>
 </head>
 <body>
+
+<!-- Loading Skeleton -->
+<div class="loading-skeleton" id="loadingSkeleton">
+  <div class="sk-header">
+    <div class="sk-line sk-w40"></div>
+    <div class="sk-line sk-w20"></div>
+  </div>
+  <div class="sk-card">
+    <div class="sk-line sk-w60"></div>
+    <div class="sk-line sk-w80"></div>
+    <div class="sk-line sk-w30"></div>
+  </div>
+  <div class="sk-card">
+    <div class="sk-line sk-w50"></div>
+    <div class="sk-line sk-w70"></div>
+  </div>
+  <div class="sk-card">
+    <div class="sk-line sk-w65"></div>
+    <div class="sk-line sk-w45"></div>
+  </div>
+</div>
 
 <!-- PWA Install Banner -->
 <div class="install-banner" id="installBanner">
@@ -500,7 +542,13 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
       <div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <div class="section-title">待办事项</div>
-          <div style="display:flex;gap:8px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="todoDateFilter" onchange="renderTodos()" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;font-size:12px;font-family:inherit;cursor:pointer;outline:none;">
+              <option value="all">全部日期</option>
+              <option value="today">今日</option>
+              <option value="week">本周</option>
+              <option value="month">本月</option>
+            </select>
             <button class="btn btn-outline btn-sm" onclick="toggleShowDone()" id="showDoneBtn">显示已完成</button>
           </div>
         </div>
@@ -719,17 +767,6 @@ const TODOS_KEY = 'taotao_workbench_todos';
 let records = JSON.parse(localStorage.getItem(RECORDS_KEY) || '[]');
 let todos = JSON.parse(localStorage.getItem(TODOS_KEY) || '[]');
 
-// 注入 Trae 助手推送的工作记录（去重）
-(function injectTraeRecords() {
-  const INJECT_KEY = 'taotao_trae_inject_v1';
-  if (localStorage.getItem(INJECT_KEY)) return;
-  var newRecords = [
-    {id: 1754182800000, title: '指导两名护士完成教学比赛指导工作', content: '', category: 'apn', date: '2026-08-03', time: '2026-08-03T01:00:00.000Z', data: '', link: ''}
-  ];
-  newRecords.forEach(function(r) { if (!records.find(function(x) { return x.id === r.id; })) records.unshift(r); });
-  localStorage.setItem(INJECT_KEY, '1');
-  saveRecords();
-})();
 let currentFilter = 'all';
 let currentTab = 'records';
 let showDone = false;
@@ -1159,6 +1196,10 @@ async function performSync() {
 }
 
 async function manualSync() {
+  // First, apply any injected records from data-inject.js
+  applyInjectedRecords();
+  renderAll();
+  
   if (!hasSyncToken()) {
     openSyncSettings();
     return;
@@ -1430,10 +1471,33 @@ function saveTodoEdit() {
 function renderTodos() {
   const container = document.getElementById('todoList');
   let filtered = todos;
+  
+  // Date filter
+  const dateFilter = document.getElementById('todoDateFilter')?.value || 'all';
+  if (dateFilter !== 'all') {
+    const now = new Date();
+    const today = formatDate(now);
+    if (dateFilter === 'today') {
+      filtered = filtered.filter(t => t.date === today);
+    } else if (dateFilter === 'week') {
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - now.getDay());
+      const weekStartStr = formatDate(weekStart);
+      filtered = filtered.filter(t => t.date >= weekStartStr);
+    } else if (dateFilter === 'month') {
+      const monthStr = today.substring(0, 7);
+      filtered = filtered.filter(t => (t.date || '').startsWith(monthStr));
+    }
+  }
+  
   if (!showDone) filtered = filtered.filter(t => !t.done);
-  if (filtered.length === 0) { container.innerHTML = '<div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">✅</div><div>暂无待办事项</div><div style="font-size:12px;color:#bbb;margin-top:4px;">在上方添加待办事项</div></div>'; renderTodoBadge(); return; }
+  if (filtered.length === 0) { 
+    const msg = dateFilter === 'all' ? '暂无待办事项' : '该日期范围内暂无待办事项';
+    container.innerHTML = '<div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">✅</div><div>' + msg + '</div><div style="font-size:12px;color:#bbb;margin-top:4px;">未完成的待办将一直保留，直到手动标记完成</div></div>'; 
+    renderTodoBadge(); return; 
+  }
   container.innerHTML = filtered.map(t => `
-    <div class="todo-item">
+    <div class="todo-item${t.done?' todo-done-item':''}">
       <div class="todo-check${t.done?' done':''}" onclick="toggleTodo(${t.id})">${t.done?'✓':''}</div>
       <span class="todo-text${t.done?' done':''}" style="cursor:pointer" onclick="openTodoEditModal(${t.id})" title="点击编辑">${escapeHtml(t.title)}</span>
       <span class="todo-cat ${getCategoryTag(t.category)}">${getCategoryName(t.category)}</span>
@@ -2194,30 +2258,31 @@ function generateRecap() {
 
 // ===== INIT =====
 // Data injection: merge records injected by Trae assistant
-(function applyInjectedRecords() {
-  const INJECT_VERSION_KEY = 'taotao_inject_version';
+// Checks each record individually to avoid missing new records when version doesn't change
+function applyInjectedRecords() {
   const injectedRecords = window.__INJECT_RECORDS__ || [];
-  const injectVersion = window.__INJECT_VERSION__ || 0;
-  const lastVersion = parseInt(localStorage.getItem(INJECT_VERSION_KEY) || '0');
+  if (injectedRecords.length === 0) return;
   
-  if (injectedRecords.length > 0 && injectVersion > lastVersion) {
-    let merged = false;
-    injectedRecords.forEach(ir => {
-      // Check if record already exists
-      if (!records.find(r => r.id === ir.id)) {
-        records.unshift(ir);
-        merged = true;
-      }
-    });
-    if (merged) {
-      saveRecords();
-      showToast('已从对话中导入 ' + injectedRecords.length + ' 条工作记录');
+  let merged = 0;
+  injectedRecords.forEach(ir => {
+    if (!records.find(r => r.id === ir.id)) {
+      records.unshift(ir);
+      merged++;
     }
-    localStorage.setItem(INJECT_VERSION_KEY, String(injectVersion));
+  });
+  if (merged > 0) {
+    saveRecords();
+    showToast('已从对话中导入 ' + merged + ' 条工作记录');
   }
-})();
+}
+
+// Apply on page load
+applyInjectedRecords();
 
 renderAll();
+
+// Hide loading skeleton
+document.getElementById('loadingSkeleton').style.display = 'none';
 
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {

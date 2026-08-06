@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taotao-workbench-v5';
+const CACHE_NAME = 'taotao-workbench-v6';
 const ASSETS = [
   './',
   './index.html',
@@ -31,7 +31,16 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch - network first with cache fallback, cache successful responses
+// Helper: is this a static asset we want to cache-first?
+function isStaticAsset(url) {
+  const path = url.pathname;
+  return path === '/' || path.endsWith('/') || 
+         path.endsWith('/index.html') || path.endsWith('index.html') ||
+         path.endsWith('/manifest.json') || path.endsWith('manifest.json') ||
+         path.endsWith('.svg') || path.endsWith('.js') || path.endsWith('.css');
+}
+
+// Fetch - cache-first for static assets (fast mobile), network-first for others
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
@@ -43,30 +52,50 @@ self.addEventListener('fetch', (event) => {
   // Skip GitHub API requests (don't cache API calls)
   if (url.hostname === 'api.github.com') return;
 
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Cache successful responses
-        if (response && response.status === 200 && response.type === 'basic') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, clone);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // Offline: try cache first
-        return caches.match(event.request).then((cached) => {
-          if (cached) return cached;
-          // If requesting a page, return the index.html (SPA fallback)
-          if (event.request.mode === 'navigate') {
-            return caches.match('./index.html');
+  // Skip Google Fonts (let browser handle them)
+  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') return;
+
+  if (isStaticAsset(url)) {
+    // Cache-first with network update for static assets = fast mobile loading
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        const fetchPromise = fetch(event.request).then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, clone);
+            });
           }
-          return new Response('Offline', { status: 503 });
-        });
+          return response;
+        }).catch(() => cached);
+        
+        return cached || fetchPromise;
       })
-  );
+    );
+  } else {
+    // Network-first for other requests
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200 && response.type === 'basic') {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, clone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(event.request).then((cached) => {
+            if (cached) return cached;
+            if (event.request.mode === 'navigate') {
+              return caches.match('./index.html');
+            }
+            return new Response('Offline', { status: 503 });
+          });
+        })
+    );
+  }
 });
 
 // Background Sync - sync data when connection is restored

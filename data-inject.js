@@ -1,6 +1,6 @@
 // 数据注入：由 Trae 助手自动生成
 // 自动识别对话中的工作内容，分类后注入工作台
-window.__INJECT_VERSION__ = 3;
+window.__INJECT_VERSION__ = 5;
 window.__INJECT_RECORDS__ = [
   {
     id: 1754391000001,
@@ -40,6 +40,26 @@ window.__INJECT_RECORDS__ = [
     date: "2026-08-05",
     time: "2026-08-05T03:00:00.000Z",
     data: "参考PPT文件夹约90个文件",
+    link: "https://1005236118-glitch.github.io/workbench/"
+  },
+  {
+    id: 1754392000001,
+    title: "删除语音输入功能，清理所有相关代码",
+    content: "彻底移除工作台中的语音输入功能，包括语音识别JS代码、语音模态框、麦克风图标、键盘快捷键等，删除parseVoiceText和extractData等辅助函数，清理未使用的parsedItems变量",
+    category: "biaozhun",
+    date: "2026-08-05",
+    time: "2026-08-05T19:00:00.000Z",
+    data: "删除约400行语音相关代码",
+    link: "https://1005236118-glitch.github.io/workbench/"
+  },
+  {
+    id: 1754392000002,
+    title: "修复工作记录自动同步、待办事项持久化及手机端加载优化",
+    content: "修复注入机制版本号问题导致新记录无法导入，优化GitHub Pages同步按钮触发注入；修复待办事项日期过滤逻辑；优化手机端加载速度，添加资源预连接和加载骨架屏",
+    category: "biaozhun",
+    date: "2026-08-05",
+    time: "2026-08-05T19:30:00.000Z",
+    data: "修复三大核心问题",
     link: "https://1005236118-glitch.github.io/workbench/"
   }
 ];
