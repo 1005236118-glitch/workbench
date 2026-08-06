@@ -1,4 +1,4 @@
-const CACHE_NAME = 'taotao-workbench-v6';
+const CACHE_NAME = 'taotao-workbench-v7';
 const ASSETS = [
   './',
   './index.html',
@@ -32,11 +32,12 @@ self.addEventListener('activate', (event) => {
 });
 
 // Helper: is this a static asset we want to cache-first?
+// NOTE: index.html is excluded from cache-first because it's the main app file that changes frequently
 function isStaticAsset(url) {
   const path = url.pathname;
-  return path === '/' || path.endsWith('/') || 
-         path.endsWith('/index.html') || path.endsWith('index.html') ||
-         path.endsWith('/manifest.json') || path.endsWith('manifest.json') ||
+  // Skip index.html - always use network-first for the main app
+  if (path.endsWith('/index.html') || path.endsWith('index.html') || path === '/' || path.endsWith('/')) return false;
+  return path.endsWith('/manifest.json') || path.endsWith('manifest.json') ||
          path.endsWith('.svg') || path.endsWith('.js') || path.endsWith('.css');
 }
 
