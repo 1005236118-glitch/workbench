@@ -107,6 +107,8 @@ body {
 .dot-keyan { background: var(--coral); }
 .dot-bisai { background: #8b5cf6; }
 .dot-gzh { background: #f59e0b; }
+.dot-yunei { background: #c084fc; }
+.dot-yuanwai { background: #38bdf8; }
 .dot-qita { background: var(--slate); }
 
 .main-content { display:flex; flex-direction:column; gap:20px; }
@@ -156,6 +158,8 @@ body {
 .tag-keyan { background: var(--coral-light); color: var(--coral); }
 .tag-bisai { background: #f3eeff; color: #7c3aed; }
 .tag-gzh { background: #fef7e0; color: #d97706; }
+.tag-yunei { background: #f5f0ff; color: #7c3aed; }
+.tag-yuanwai { background: #e0f7ff; color: #0284c7; }
 .tag-qita { background: var(--slate-light); color: var(--slate); }
 .tag-duihua { background: #e0f2fe; color: #0369a1; }
 .work-item .work-text { flex:1; font-size:14px; color: var(--text); }
@@ -481,6 +485,8 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
       <div class="work-category" data-cat="keyan" onclick="filterByCategory('keyan',this)"><span class="dot dot-keyan"></span> 科研学术 <span class="cat-count" id="catCountKeyan" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
       <div class="work-category" data-cat="bisai" onclick="filterByCategory('bisai',this)"><span class="dot dot-bisai"></span> 比赛活动 <span class="cat-count" id="catCountBisai" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
       <div class="work-category" data-cat="gzh" onclick="filterByCategory('gzh',this)"><span class="dot dot-gzh"></span> 公众号内容 <span class="cat-count" id="catCountGzh" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
+      <div class="work-category" data-cat="yunei" onclick="filterByCategory('yunei',this)"><span class="dot dot-yunei"></span> 院内授课 <span class="cat-count" id="catCountYunei" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
+      <div class="work-category" data-cat="yuanwai" onclick="filterByCategory('yuanwai',this)"><span class="dot dot-yuanwai"></span> 院外授课 <span class="cat-count" id="catCountYuanwai" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
       <div class="work-category" data-cat="qita" onclick="filterByCategory('qita',this)"><span class="dot dot-qita"></span> 其他工作 <span class="cat-count" id="catCountQita" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
       <div class="work-category" data-cat="duihua" onclick="filterByCategory('duihua',this)"><span class="dot" style="background:#0ea5e9;"></span> 对话记录 <span class="cat-count" id="catCountDuihua" style="margin-left:auto;font-size:11px;color:var(--text-secondary);">0</span></div>
     </div>
@@ -497,7 +503,7 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
       <div class="quick-record">
         <input type="text" id="quickInput" placeholder="记录今天的工作内容..." onkeydown="if(event.key==='Enter')addRecord()">
         <select id="quickCat">
-          <option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号</option><option value="qita">其他</option><option value="duihua">对话记录</option>
+          <option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号</option><option value="yunei">院内授课</option><option value="yuanwai">院外授课</option><option value="qita">其他</option><option value="duihua">对话记录</option>
         </select>
         <input type="date" id="quickDate" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;font-family:inherit;outline:none;">
         <button class="btn btn-primary" onclick="addRecord()">+ 记录</button>
@@ -533,7 +539,7 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
       <div class="quick-record">
         <input type="text" id="todoInput" placeholder="添加待办事项..." onkeydown="if(event.key==='Enter')addTodo()">
         <select id="todoCat">
-          <option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号</option><option value="qita">其他</option><option value="duihua">对话记录</option>
+          <option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号</option><option value="yunei">院内授课</option><option value="yuanwai">院外授课</option><option value="qita">其他</option><option value="duihua">对话记录</option>
         </select>
         <input type="date" id="todoDate" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;font-family:inherit;outline:none;">
         <button class="btn btn-primary" onclick="addTodo()">+ 待办</button>
@@ -657,7 +663,7 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
   <div class="modal">
     <h2>编辑工作记录</h2>
     <input type="hidden" id="editId">
-    <div class="form-group"><label>工作分类</label><select id="editCat"><option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP构建</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号内容</option><option value="qita">其他</option><option value="duihua">对话记录</option></select></div>
+    <div class="form-group"><label>工作分类</label><select id="editCat"><option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP构建</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号内容</option><option value="yunei">院内授课</option><option value="yuanwai">院外授课</option><option value="qita">其他</option><option value="duihua">对话记录</option></select></div>
     <div class="form-group"><label>日期</label><input type="date" id="editDate"></div>
     <div class="form-group"><label>工作标题</label><input type="text" id="editTitle" placeholder="简要描述工作内容"></div>
     <div class="form-group"><label>详细内容</label><textarea id="editContent" placeholder="详细描述工作内容、数据成效、遇到的问题等..."></textarea></div>
@@ -671,7 +677,7 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
 <div class="modal-overlay" id="detailModal" style="display:none" onclick="if(event.target===this)closeDetailModal()">
   <div class="modal">
     <h2>添加工作记录</h2>
-    <div class="form-group"><label>工作分类</label><select id="detailCat"><option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP构建</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号内容</option><option value="qita">其他</option><option value="duihua">对话记录</option></select></div>
+    <div class="form-group"><label>工作分类</label><select id="detailCat"><option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP构建</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号内容</option><option value="yunei">院内授课</option><option value="yuanwai">院外授课</option><option value="qita">其他</option><option value="duihua">对话记录</option></select></div>
     <div class="form-group"><label>日期</label><input type="date" id="detailDate"></div>
     <div class="form-group"><label>工作标题</label><input type="text" id="detailTitle" placeholder="简要描述工作内容"></div>
     <div class="form-group"><label>详细内容</label><textarea id="detailContent" placeholder="详细描述工作内容、数据成效、遇到的问题等..."></textarea></div>
@@ -686,7 +692,7 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
   <div class="modal">
     <h2>编辑待办事项</h2>
     <input type="hidden" id="todoEditId">
-    <div class="form-group"><label>分类</label><select id="todoEditCat"><option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP构建</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号内容</option><option value="qita">其他</option><option value="duihua">对话记录</option></select></div>
+    <div class="form-group"><label>分类</label><select id="todoEditCat"><option value="apn">APN工作</option><option value="zhuanbing">专病管理</option><option value="biaozhun">标准化/SOP构建</option><option value="keyan">科研学术</option><option value="bisai">比赛活动</option><option value="gzh">公众号内容</option><option value="yunei">院内授课</option><option value="yuanwai">院外授课</option><option value="qita">其他</option><option value="duihua">对话记录</option></select></div>
     <div class="form-group"><label>日期</label><input type="date" id="todoEditDate"></div>
     <div class="form-group"><label>内容</label><input type="text" id="todoEditTitle" placeholder="待办事项内容"></div>
     <div class="modal-actions"><button class="btn btn-outline" onclick="closeTodoEditModal()">取消</button><button class="btn btn-primary" onclick="saveTodoEdit()">保存修改</button></div>
@@ -798,11 +804,11 @@ function escapeHtml(str) { const div = document.createElement('div'); div.textCo
 
 // ===== CATEGORY HELPERS =====
 function getCategoryTag(cat) {
-  const m = { apn:'tag-apn',zhuanbing:'tag-zhuanbing',biaozhun:'tag-biaozhun',keyan:'tag-keyan',bisai:'tag-bisai',gzh:'tag-gzh',qita:'tag-qita',duihua:'tag-duihua' };
+  const m = { apn:'tag-apn',zhuanbing:'tag-zhuanbing',biaozhun:'tag-biaozhun',keyan:'tag-keyan',bisai:'tag-bisai',gzh:'tag-gzh',yunei:'tag-yunei',yuanwai:'tag-yuanwai',qita:'tag-qita',duihua:'tag-duihua' };
   return m[cat]||'tag-qita';
 }
 function getCategoryName(cat) {
-  const m = { apn:'APN工作',zhuanbing:'专病管理',biaozhun:'标准化/SOP',keyan:'科研学术',bisai:'比赛活动',gzh:'公众号',qita:'其他',duihua:'对话记录' };
+  const m = { apn:'APN工作',zhuanbing:'专病管理',biaozhun:'标准化/SOP',keyan:'科研学术',bisai:'比赛活动',gzh:'公众号',yunei:'院内授课',yuanwai:'院外授课',qita:'其他',duihua:'对话记录' };
   return m[cat]||cat;
 }
 
@@ -1611,7 +1617,7 @@ function renderCategoryCounts() {
   const thisMonth = getCurrentMonth();
   const monthRecords = records.filter(r => (r.date||'').startsWith(thisMonth));
   document.getElementById('catCountAll').textContent = monthRecords.length;
-  ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','qita','duihua'].forEach(cat => {
+  ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','yunei','yuanwai','qita','duihua'].forEach(cat => {
     const el = document.getElementById('catCount' + cat.charAt(0).toUpperCase() + cat.slice(1));
     if (el) el.textContent = monthRecords.filter(r => r.category === cat).length;
   });
@@ -1627,6 +1633,8 @@ function smartClassify(text) {
     { cat:'keyan', keywords: ['科研','论文','投稿','发表','期刊','杂志','中华','护理','项目书','申报','课题','伦理','专利','申请','结题','数据收集','统计','分析','spss','方法','结果','讨论','结论','摘要','关键词','参考文献','文献综述','综述','研究','调查','科普','图书','书籍','书稿','撰稿','审稿','修改','录用','毕业','研究生','硕士','论文答辩','开题','中期','报告','学术会议','大会发言','壁报','海报','投稿','征文','读书报告','sci','核心期刊','统计源','创新','设计','实施','评价','验证','应用','效果','成效','差异','显著','实验组','对照组','干预','方案','读后感','反思','复盘'] },
     { cat:'bisai', keywords: ['比赛','竞赛','案例','案例比赛','科普比赛','演讲','汇报','护理管理','品管圈','qcc','创新','金点子','极致服务','十佳','优秀','评选','竞聘','副护士长','护士长','荣誉','奖项','获奖','省级','国家级','市级','院级','选手','参赛','评比','展示','作品','提交','截止','改','修改','反馈','领导','批注','审核','通过','ppt','幻灯片','课件','制作','美化','版式','模板','配色','排版','讲稿','发言稿','演讲稿','演讲','演示','播放','试讲','排练','预演'] },
     { cat:'gzh', keywords: ['公众号','推文','微信','推文','宣传','发布','文案','推文','阅读量','点击','转发','在看','点赞','评论','粉丝','关注','编辑','排版','配图','封面','标题','摘要','图文','h5','内网','外网','官网','公告','通知','义诊','新闻','报道','通讯','人物','专访','事迹','故事','案例','96岁','生命奇迹','中风','识别','急救','befast','中风120','就诊指南','旌北','五代医院','融合','破壁','晨学','赋能','复盘','提质','专业能力','提升','专科','培训','会议','学会','发言','分享','交流','会议纪要','简报','简讯','通讯稿','通讯'] },
+    { cat:'yunei', keywords: ['院内授课','院内培训','院内讲课','院内讲座','科室授课','科室讲课','科室培训','科室讲座','护理查房','教学查房','业务学习','科内培训','科内学习','带教','实习','进修','规培','新护士','入职培训','岗前培训','操作培训','技能培训','护理教学','临床教学','床边教学','查房','示教','演示','教学','讲课','授课','讲座','培训','科室','院内','科内','科里'] },
+    { cat:'yuanwai', keywords: ['院外授课','院外培训','院外讲课','院外讲座','院外交流','外出授课','外出讲课','外出培训','继教班','继续教育','继教项目','基层培训','基层帮扶','下乡','对口支援','社区','学术交流','学术会议','大会发言','专题报告','巡讲','巡回','外出','院外','外院','下级医院','医联体','医共体','帮扶','指导','督导','评审','检查','质控','质控中心','护理学会','医学会','专委会','专业委员会','常委','委员','学组'] },
     { cat:'qita', keywords: ['报销','保险','出生证','户口本','身份证','银行卡','报名','考试','准考证','证书','毕业','学位','学分','继教','学分','会议','签到','注册','餐饮','住宿','交通','出差','外出','学习','进修','参观','访问','交流','新加坡','西安','华西','川北','成都','绵竹','德阳','医院','科室','人员','拍照','工作照','简介','简历','履历','述职','竞聘','面试','表格','模板','格式','合作','协调','沟通','对接','联系','安排','通知','提醒','备忘','记录','登记','签到','签退','考勤','排班','调班','补休','请假','加班','夜班','倒计时'] },
     { cat:'duihua', keywords: ['对话','讨论','交流','聊','说','告诉我','建议','推荐','复盘','反思','总结','回顾','梳理','整理','思考','分析','问题','困难','困惑','帮忙','协助','问问','翠','老师','导师','同事','领导','助手','AI','智能','trae','工作台','语音','手机','平板','电脑','界面','布局','功能','优化','改进','修复','更新','升级','比较','选择','方案','计划','规划','安排','日程','提醒','备忘','笔记','日记','周记','月报','年报','阶段','汇报','进展','进度','反馈','意见','看法','想法','创意','灵感','点子','下一步','接下来','今后','以后','未来','方向','目标','愿景','使命','核心价值观','人生','工作','生活','平衡','时间','管理','效率','工具','方法','技巧','经验','教训','收获','成长','进步','发展','提升','突破','挑战','机遇','风险','应对','策略','战术','执行','落实','检查','评估','考核','绩效','成果','成效','数据','指标','证据','依据','指南','规范','流程','步骤','环节','关键','重点','核心','本质','底层','逻辑','道理','原理','规律','趋势','变化','迭代','更新','版本','发布','上线','测试','验证','检查','确认','完成','搞定','成功','失败','错误','异常','bug','问题','原因','重现','复现','步骤','修复','解决','关闭','完成','归档'] }
   ];
@@ -1738,7 +1746,7 @@ function openMonthlyReport() {
   const byCat = {};
   monthRecords.forEach(r => { if (!byCat[r.category]) byCat[r.category] = []; byCat[r.category].push(r); });
   let html = `<div style="margin-bottom:16px;"><strong>${thisMonth} 月度工作汇总</strong></div>`;
-  const catOrder = ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','qita','duihua'];
+  const catOrder = ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','yunei','yuanwai','qita','duihua'];
   catOrder.forEach(cat => {
     const items = byCat[cat] || [];
     if (items.length === 0) return;
@@ -1765,7 +1773,7 @@ function openDataDashboard() {
   html += `<div style="margin-bottom:12px;">✅ 待办完成：<strong style="color:var(--coral);font-size:20px;">${todos.filter(t=>t.done).length}</strong> / ${todos.length}</div>`;
   html += '<div style="margin-bottom:12px;"><strong>分类统计</strong></div>';
   html += '<table class="monthly-table"><thead><tr><th>分类</th><th>总计</th><th>本月</th></tr></thead><tbody>';
-  ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','qita','duihua'].forEach(cat => {
+  ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','yunei','yuanwai','qita','duihua'].forEach(cat => {
     const total = byCat[cat]||0;
     const month = monthRecords.filter(r=>r.category===cat).length;
     html += `<tr><td>${getCategoryName(cat)}</td><td>${total}</td><td>${month}</td></tr>`;
@@ -2133,7 +2141,7 @@ function generateRecap() {
   }
 
   // Category breakdown
-  const catOrder = ['apn', 'zhuanbing', 'biaozhun', 'keyan', 'bisai', 'gzh', 'qita', 'duihua'];
+  const catOrder = ['apn', 'zhuanbing', 'biaozhun', 'keyan', 'bisai', 'gzh', 'yunei', 'yuanwai', 'qita', 'duihua'];
   const byCat = {};
   catOrder.forEach(c => { byCat[c] = []; });
   filtered.forEach(r => { if (byCat[r.category]) byCat[r.category].push(r); else (byCat['qita'] || []).push(r); });
@@ -2174,7 +2182,7 @@ function generateRecap() {
 
   // Category tags
   html += '<div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;">';
-  const barColors = { apn: '#0d9488', zhuanbing: '#5b8def', biaozhun: '#d4a017', keyan: '#e85d3a', bisai: '#8b5cf6', gzh: '#f59e0b', qita: '#94a3b8', duihua: '#0ea5e9' };
+  const barColors = { apn: '#0d9488', zhuanbing: '#5b8def', biaozhun: '#d4a017', keyan: '#e85d3a', bisai: '#8b5cf6', gzh: '#f59e0b', yunei: '#c084fc', yuanwai: '#38bdf8', qita: '#94a3b8', duihua: '#0ea5e9' };
   catOrder.forEach(cat => {
     const count = (byCat[cat] || []).length;
     if (count > 0) {
@@ -2324,7 +2332,7 @@ function downloadRecapWord(dimKey, periodLabel) {
     const d = new Date(r.date + 'T00:00:00');
     return d >= start && d <= end;
   });
-  const catOrder = ['apn', 'zhuanbing', 'biaozhun', 'keyan', 'bisai', 'gzh', 'qita', 'duihua'];
+  const catOrder = ['apn', 'zhuanbing', 'biaozhun', 'keyan', 'bisai', 'gzh', 'yunei', 'yuanwai', 'qita', 'duihua'];
   const byCat = {};
   catOrder.forEach(c => { byCat[c] = []; });
   filtered.forEach(r => { if (byCat[r.category]) byCat[r.category].push(r); else (byCat['qita'] || []).push(r); });
@@ -2465,8 +2473,8 @@ function generateAnnualReport() {
   const container = document.getElementById('annualContent');
   const now = new Date();
   const thisYear = now.getFullYear();
-  const catOrder = ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','qita','duihua'];
-  const catColors = { apn: 'var(--teal)', zhuanbing: '#5b8def', biaozhun: 'var(--gold)', keyan: 'var(--coral)', bisai: '#8b5cf6', gzh: '#f59e0b', qita: 'var(--slate)', duihua: '#0ea5e9' };
+  const catOrder = ['apn','zhuanbing','biaozhun','keyan','bisai','gzh','yunei','yuanwai','qita','duihua'];
+  const catColors = { apn: 'var(--teal)', zhuanbing: '#5b8def', biaozhun: 'var(--gold)', keyan: 'var(--coral)', bisai: '#8b5cf6', gzh: '#f59e0b', yunei: '#c084fc', yuanwai: '#38bdf8', qita: 'var(--slate)', duihua: '#0ea5e9' };
 
   // Monthly breakdown
   const monthlyData = {};
