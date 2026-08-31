@@ -113,6 +113,31 @@ body {
 
 .main-content { display:flex; flex-direction:column; gap:20px; }
 
+/* 工作方向指南针卡片 */
+.compass-card { background: linear-gradient(135deg, var(--navy) 0%, #243c6b 100%); border-radius: var(--radius); box-shadow: 0 4px 20px rgba(26,39,68,.25); overflow:hidden; border:1px solid rgba(196,150,61,.35); }
+.compass-head { display:flex; align-items:center; gap:12px; padding:14px 20px; cursor:pointer; user-select:none; }
+.compass-head .compass-icon { width:38px; height:38px; border-radius:10px; background:rgba(196,150,61,.18); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.compass-head .compass-title { color:#fff; font-family:var(--font-serif); font-size:17px; font-weight:700; letter-spacing:1px; }
+.compass-head .compass-sub { color:rgba(255,255,255,.55); font-size:11.5px; margin-top:2px; }
+.compass-head .compass-arrow { margin-left:auto; color:rgba(255,255,255,.5); font-size:12px; transition:transform .25s; }
+.compass-card.collapsed .compass-arrow { transform:rotate(-90deg); }
+.compass-body { padding:0 20px 16px; display:grid; grid-template-columns:1.25fr 1fr 1.15fr; gap:14px; }
+.compass-card.collapsed .compass-body { display:none; }
+.compass-col { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.09); border-radius:var(--radius-sm); padding:14px 16px; }
+.compass-col h4 { font-size:12.5px; color:var(--gold); letter-spacing:1px; margin-bottom:10px; font-weight:600; display:flex; align-items:center; gap:6px; }
+.compass-col ul { list-style:none; margin:0; padding:0; }
+.compass-col li { color:rgba(255,255,255,.88); font-size:12.5px; line-height:1.65; padding-left:14px; position:relative; margin-bottom:5px; }
+.compass-col li::before { content:''; position:absolute; left:2px; top:8px; width:5px; height:5px; border-radius:50%; background:var(--gold); opacity:.75; }
+.compass-col li strong { color:#fff; font-weight:600; }
+.compass-col .muted { color:rgba(255,255,255,.5); font-size:11px; margin-top:8px; line-height:1.5; }
+.compass-ask li { padding-left:12px; margin-bottom:9px; background:rgba(45,138,123,.16); border-left:3px solid var(--teal); border-radius:0 6px 6px 0; padding-top:7px; padding-right:10px; padding-bottom:7px; }
+.compass-ask li::before { display:none; }
+.compass-ask .ask-no { color:var(--gold); font-weight:700; margin-right:4px; }
+.compass-ask .ask-tag { display:inline-block; font-size:10px; color:rgba(255,255,255,.55); margin-top:2px; }
+.compass-foot { padding:10px 20px; background:rgba(196,150,61,.12); border-top:1px solid rgba(196,150,61,.25); color:rgba(255,255,255,.75); font-size:11.5px; text-align:center; letter-spacing:.5px; }
+.compass-card.collapsed .compass-foot { display:none; }
+@media (max-width:1100px){ .compass-body { grid-template-columns:1fr; } }
+
 /* Tab Switcher */
 .tab-switcher { display:flex; gap:4px; background: var(--surface); border-radius: var(--radius); padding:4px; box-shadow: var(--shadow-sm); border:1px solid var(--border); }
 .tab-btn { flex:1; padding:10px 16px; border:none; background:transparent; border-radius: var(--radius-sm); font-size:14px; font-weight:500; cursor:pointer; color: var(--text-secondary); transition: var(--transition); font-family:inherit; }
@@ -515,6 +540,47 @@ body.dark .work-category:hover, body.dark .work-category.active { background: va
         <div class="stat-card"><div class="stat-label">APN工作</div><div class="stat-value val-gold" id="statApnCount">0</div><div class="stat-sub">本月APN记录</div></div>
         <div class="stat-card"><div class="stat-label">待办事项</div><div class="stat-value val-coral" id="statTodoCount">0</div><div class="stat-sub">未完成/已完成</div></div>
         <div class="stat-card"><div class="stat-label">本月天数</div><div class="stat-value val-navy" id="statDays">0</div><div class="stat-sub">有记录的工作日</div></div>
+      </div>
+
+      <div class="compass-card" id="compassCard">
+        <div class="compass-head" onclick="this.parentElement.classList.toggle('collapsed')">
+          <div class="compass-icon">🧭</div>
+          <div>
+            <div class="compass-title">APN工作方向指南针</div>
+            <div class="compass-sub">2026.8.31 院领导汇报反馈 · 每一项工作、每一次汇报，都对照这里校准方向</div>
+          </div>
+          <span class="compass-arrow">▼</span>
+        </div>
+        <div class="compass-body">
+          <div class="compass-col">
+            <h4>🎯 两大主线</h4>
+            <ul>
+              <li><strong>专病管理：</strong>路径标准化 · 构建全程管理路径、深耕重点环节 · 多学科联合、专科引领、特色突出</li>
+              <li><strong>急医生之所急：</strong>不仅关注护理问题，更关注医生关注的问题，做精准护理</li>
+              <li><strong>优势病种打法：</strong>选优势病种 → 形成可复制方法 → 院级 → 德阳市 → 全国推广</li>
+              <li><strong>专项管理：</strong>多维度评价 · 以病人为中心 · 多科室多部门协同，把病人留在医院</li>
+            </ul>
+          </div>
+          <div class="compass-col">
+            <h4>📌 关键要求</h4>
+            <ul>
+              <li>让医生和护士知道 <strong>APN在做什么</strong></li>
+              <li><strong>照护能力建设</strong>：带领科室老师制定照护标准</li>
+              <li>特殊患者 <strong>医护共同查房</strong>，聚焦重点问题</li>
+              <li>工作落地到<strong>患者照护实际</strong></li>
+              <li>经验总结<strong>标准化、可复制、可推广</strong></li>
+            </ul>
+          </div>
+          <div class="compass-col">
+            <h4>❓ 灵魂三问（每项工作自检）</h4>
+            <ul class="compass-ask">
+              <li><span class="ask-no">问一</span>患者得到了什么？我们得到了什么？<br><span class="ask-tag">→ 有哪些数据可以拿出来展示？</span></li>
+              <li><span class="ask-no">问二</span>医生在这个过程中得到了什么？<br><span class="ask-tag">→ 医疗认可 · 患者认可 · 护士认可，做到了吗？</span></li>
+              <li><span class="ask-no">问三</span>这项工作是否落地到患者的照护实际？<br><span class="ask-tag">→ 病人是整体，别停留在纸面上</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="compass-foot">⚡ 记录每一条工作前，先用灵魂三问过一遍——能回答的工作才有价值，能展示的数据才是成果</div>
       </div>
 
       <div>
