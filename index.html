@@ -1985,6 +1985,135 @@ function getRecapPeriodDates(period) {
 
 // ===== STRATEGIC RECAP ENGINE =====
 // Four-dimension strategic analysis from a nursing vice president perspective
+// 复盘参照锚点：APN工作方向指南针（德阳市人民医院护理分管院长视角）
+const COMPASS = {
+  title: 'APN工作方向指南针',
+  subtitle: '2026.8.31 院领导汇报反馈',
+  lines: [
+    '专病管理：路径标准化 · 全程管理路径 · 多学科联合 · 专科引领 · 特色突出',
+    '急医生之所急：不仅关注护理问题，更关注医生关注的问题，做精准护理',
+    '优势病种打法：选优势病种 → 形成可复制方法 → 院级 → 德阳市 → 全国推广',
+    '专项管理：多维度评价 · 以病人为中心 · 多科室协同 · 把病人留在医院'
+  ],
+  requirements: [
+    '让医生和护士知道 APN 在做什么',
+    '照护能力建设：带领科室老师制定照护标准',
+    '特殊患者医护共同查房，聚焦重点问题',
+    '工作落地到患者照护实际',
+    '经验总结标准化、可复制、可推广'
+  ],
+  threeQuestions: [
+    { q: '问一：患者得到了什么？我们得到了什么？', hint: '有哪些数据可以拿出来展示？' },
+    { q: '问二：医生在这个过程中得到了什么？', hint: '医疗认可 · 患者认可 · 护士认可，做到了吗？' },
+    { q: '问三：这项工作是否落地到患者的照护实际？', hint: '病人是整体，别停留在纸面上' }
+  ]
+};
+
+// 指南针偏离诊断引擎：基于实际工作记录，判断每个战略维度相对指南针方向的偏离/对齐情况
+function analyzeCompass(activeCats, byCat, dataRecords, totalRecords) {
+  const has = (c) => activeCats.includes(c);
+  const cnt = (c) => (byCat[c] || []).length;
+  const dataRatio = totalRecords > 0 ? Math.round(dataRecords.length / totalRecords * 100) : 0;
+
+  // 汇总所有记录文本，判断是否已"落地/闭环/有成效"
+  const allText = Object.values(byCat).flat()
+    .map(r => (r.title || '') + ' ' + (r.content || '') + ' ' + (r.data || ''))
+    .join(' ').toLowerCase();
+  const hasPath = /路径|全程|标准化|可复制|推广|复制|手册/.test(allText);
+  const hasLanding = /落地|闭环|执行|实施|应用|成效|效果|降低|改善|下降|提升|达标|减少/.test(allText);
+  const hasTeam = /共同查房|联合查房|医护|带教|培训|科室老师|团队|多学科/.test(allText);
+
+  return {
+    standardization: {
+      compass: '对照主线「专病管理·路径标准化」「优势病种→可复制可推广」与要求「照护能力建设·制定照护标准」',
+      deviations: (function() {
+        const arr = [];
+        if (!has('biaozhun')) {
+          arr.push({ text: '「照护能力建设、带领科室制定照护标准」是指南针硬要求，但本期无任何标准化/SOP记录，标准建设线处于缺位状态。', advice: '立即启动SOP盘点：列出科室现有核心流程（卒中急救、溶栓护理、吞咽管理、跌倒、压疮），逐条标注版本号与更新日期，先建台账再补标准。' });
+        }
+        if (has('biaozhun') && !has('zhuanbing')) {
+          arr.push({ text: '有单点SOP修订，但缺少「专病全程管理路径」的整体标准化，标准是散点而非体系。', advice: '以优势病种（如脑卒中）为切口，把散点SOP串成「入院评估→急性期→康复→随访」一条全程路径，形成一份可复制的专病路径标准。' });
+        }
+        if (has('zhuanbing') && !hasPath) {
+          arr.push({ text: '专病管理做了系统与预警，但未沉淀为「可复制、可推广」的路径标准，指南针「可复制方法」这一环缺失。', advice: '把专病系统的评估工具、预警规则、个性化方案模板整理成《专病管理标准化手册》，让系统能力变成可对外复制的方法论。' });
+        }
+        return arr;
+      })(),
+      keepDoing: (function() {
+        const arr = [];
+        if (has('biaozhun')) arr.push('SOP 对照最新团标持续更新（如吞咽筛查 SOP v2.3）是正确做法，保持「有据可依」的更新习惯。');
+        if (has('zhuanbing')) arr.push('专病数字化系统正是「专科引领、特色突出」的落地载体，继续深耕是方向正确的。');
+        return arr;
+      })()
+    },
+    clinicalValue: {
+      compass: '对照灵魂三问「问一：患者/我们得到什么，数据可展示吗」与要求「让医护知道 APN 在做什么」',
+      deviations: (function() {
+        const arr = [];
+        if (dataRatio < 50) {
+          arr.push({ text: '灵魂三问问一「有哪些数据可以拿出来展示」，本期 ' + dataRatio + '% 的记录缺少量化指标，价值叙事停留在「做了」而非「改变了」。', advice: '为每类工作预设1个核心指标（吞咽筛查率、并发症率、满意度、平均住院日、随访依从率），记录时强制填写数据，月底即可自动生成价值证据。' });
+        }
+        if (!has('apn')) {
+          arr.push({ text: 'APN 核心价值叙事缺失，医护对「APN 在做什么、带来什么价值」缺乏感知。', advice: '启动「APN 价值一页纸」：把本月 APN 工作量（门诊/随访/宣教/会诊）与患者结局指标对照呈现，主动向科室和院领导展示。' });
+        }
+        if (has('apn') && dataRatio < 30) {
+          arr.push({ text: '有 APN 汇报类工作，但缺乏配套数据支撑，「让医护知道 APN 在做什么」只停留在口头汇报。', advice: '每次汇报前先做数据盘点，用「投入(工作量)→过程(干预)→产出(结局)」三段式讲 APN 故事，让汇报有数字可讲。' });
+        }
+        return arr;
+      })(),
+      keepDoing: (function() {
+        const arr = [];
+        if (dataRatio >= 30) arr.push('已出现数据化意识（如吞咽筛查率96.8%、满意度98.2%），这些好指标要继续积累成趋势。');
+        if (has('apn')) arr.push('APN 汇报、课件制作是价值展示的抓手，坚持「用数据说话」的汇报方式。');
+        return arr;
+      })()
+    },
+    qualitySafety: {
+      compass: '对照灵魂三问「问三：落地到照护实际了吗」与要求「工作落地到患者照护实际」',
+      deviations: (function() {
+        const arr = [];
+        const safetyText = (byCat['zhuanbing'] || []).concat(byCat['biaozhun'] || []).map(r => (r.title || '') + ' ' + (r.content || '')).join(' ');
+        const hasSafety = /前哨|预警|并发症|不良事件|跌倒|误吸|压疮|vte|溶栓|安全/.test(safetyText.toLowerCase());
+        if (!hasSafety) {
+          arr.push({ text: '指南针强调「工作落地到照护实际、病人是整体」，但本期质量安全线（前哨排查、并发症、不良事件）记录薄弱。', advice: '把每日前哨症状结构化排查纳入固定记录动作，建立「排查→异常→SOP匹配→处理→反馈」的闭环记录，确保安全防线可见可查。' });
+        }
+        if (has('zhuanbing') && !hasLanding) {
+          arr.push({ text: '前哨预警系统停留在「讨论优化」层面，未形成「预警→处理→效果反馈」的落地闭环。', advice: '选定1个高风险场景（如吞咽功能恶化），走通「系统预警→护士处置→结局记录」全流程，用1个真实闭环案例证明系统真正落地。' });
+        }
+        return arr;
+      })(),
+      keepDoing: (function() {
+        const arr = [];
+        if (has('zhuanbing')) arr.push('前哨症状结构化排查是质量安全的前瞻抓手，方向正确，继续做深做透。');
+        if (has('biaozhun')) arr.push('SOP 匹配并发症处理是质量安全的制度保障，坚持「有异常必有SOP」的对应关系。');
+        return arr;
+      })()
+    },
+    influence: {
+      compass: '对照主线「优势病种→可复制→院级→德阳市→全国推广」与要求「经验标准化可推广」',
+      deviations: (function() {
+        const arr = [];
+        if (!has('yunei') && !has('yuanwai')) {
+          arr.push({ text: '指南针明确「走向德阳市、走向全国」，但本期无院内/院外授课记录，影响力外溢尚未启动。', advice: '先院内练兵：每月1次科室/院内授课，把 APN 与专病管理经验讲给同事，打磨课件，再择机申报院外继教/学术交流。' });
+        }
+        if (has('yuanwai') && cnt('yuanwai') === 1) {
+          arr.push({ text: '院外授课刚起步，尚未形成「标准化、可复制」的输出模式。', advice: '把每次授课内容固化为标准课件与讲稿模板，积累「可复用授课包」，为走向更大平台做准备。' });
+        }
+        if (!has('keyan') && !has('bisai')) {
+          arr.push({ text: '缺学术背书，指南针「形成可复制方法」缺乏论文/课题/获奖的硬支撑。', advice: '从专病管理数据中提炼1个可发表选题（如前哨预警应用效果），启动首篇论文/案例投稿，用学术成果给推广加分。' });
+        }
+        return arr;
+      })(),
+      keepDoing: (function() {
+        const arr = [];
+        if (has('gzh')) arr.push('公众号是品牌输出窗口（如阅读量850+），坚持系列化科普，是影响力积累的正确路径。');
+        if (has('keyan')) arr.push('科研/图书编写是学术背书，继续推进，成果可直接服务于「可复制可推广」。');
+        return arr;
+      })()
+    }
+  };
+}
+
 const STRATEGIC_DIMENSIONS = {
   standardization: {
     name: '标准化体系建设',
@@ -2261,125 +2390,114 @@ function generateRecap() {
   }
   html += '</div></div>';
 
-  // ===== SECTION 2: STRATEGIC SUGGESTIONS (BIG ITEMS + DOWNLOAD WORD) =====
-  html += '<div style="margin-bottom:20px;">';
-  html += '<div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px;display:flex;align-items:center;gap:8px;">';
-  html += '<span style="width:4px;height:18px;background:var(--navy);border-radius:2px;display:inline-block;"></span>🏥 战略发展建议';
-  html += '<span style="font-size:11px;font-weight:400;color:var(--text-secondary);">以护理分管院长视角，基于' + escapeHtml(label) + '工作记录动态生成</span>';
-  html += '</div>';
+  // ===== 指南针偏离诊断 =====
+  const diag = analyzeCompass(activeCats, byCat, dataRecords, totalRecords);
+  const dataRatio = totalRecords > 0 ? Math.round(dataRecords.length / totalRecords * 100) : 0;
 
   const dimKeys = ['standardization', 'clinicalValue', 'qualitySafety', 'influence'];
+  let totalDeviations = 0, totalKeep = 0;
+  dimKeys.forEach(k => { totalDeviations += diag[k].deviations.length; totalKeep += diag[k].keepDoing.length; });
+
+  // 金字塔总纲：核心结论
+  let coreConclusion = '';
+  if (totalDeviations >= 4) {
+    coreConclusion = '本期工作主线方向正确（专病管理数字化特色突出），但对照指南针在「数据可展示」「可复制可推广」「落地照护」三个灵魂三问上存在 ' + totalDeviations + ' 处偏离，需重点纠偏。';
+  } else if (totalDeviations >= 1) {
+    coreConclusion = '本期工作与指南针方向基本对齐，但仍有 ' + totalDeviations + ' 处需微调，聚焦补齐数据化与可复制两个短板即可更进一步。';
+  } else {
+    coreConclusion = '本期工作与指南针方向高度对齐，四大维度均在轨道上，保持节奏、持续深耕即可。';
+  }
+
+  let maxDevDim = null, maxDev = 0, maxKeepDim = null, maxKeep = 0;
+  dimKeys.forEach(k => {
+    if (diag[k].deviations.length > maxDev) { maxDev = diag[k].deviations.length; maxDevDim = k; }
+    if (diag[k].keepDoing.length > maxKeep) { maxKeep = diag[k].keepDoing.length; maxKeepDim = k; }
+  });
+
+  // ===== 金字塔总纲（顶层结论） =====
+  html += '<div style="margin-bottom:20px;padding:20px;background:linear-gradient(135deg,var(--navy),#2a3f6e);border-radius:var(--radius);color:#fff;">';
+  html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-size:20px;">🧭</span><span style="font-size:15px;font-weight:700;">复盘总纲 · ' + escapeHtml(label) + '</span></div>';
+  html += '<div style="font-size:11px;opacity:0.75;margin-bottom:14px;">以「APN工作方向指南针」为标尺 · 德阳市人民医院护理分管院长视角</div>';
+  html += '<div style="font-size:14px;line-height:1.8;font-weight:500;padding:12px 14px;background:rgba(255,255,255,0.12);border-radius:var(--radius-sm);border-left:3px solid var(--gold);">' + coreConclusion + '</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px;">';
+  html += '<div style="text-align:center;"><div style="font-size:26px;font-weight:700;color:#ffd166;">' + totalRecords + '</div><div style="font-size:11px;opacity:0.7;">总记录</div></div>';
+  html += '<div style="text-align:center;"><div style="font-size:26px;font-weight:700;color:#ff9a9a;">' + totalDeviations + '</div><div style="font-size:11px;opacity:0.7;">偏离项</div></div>';
+  html += '<div style="text-align:center;"><div style="font-size:26px;font-weight:700;color:#7ce0a5;">' + totalKeep + '</div><div style="font-size:11px;opacity:0.7;">可继续做</div></div>';
+  html += '<div style="text-align:center;"><div style="font-size:26px;font-weight:700;">' + dataRatio + '%</div><div style="font-size:11px;opacity:0.7;">数据化率</div></div>';
+  html += '</div>';
+  if (maxDevDim && maxKeepDim) {
+    html += '<div style="margin-top:12px;font-size:12px;opacity:0.92;line-height:1.8;">';
+    html += '🔴 最需纠偏：<strong>' + STRATEGIC_DIMENSIONS[maxDevDim].name + '</strong>（' + maxDev + '处偏离） &nbsp;·&nbsp; 🟢 最稳健：<strong>' + STRATEGIC_DIMENSIONS[maxKeepDim].name + '</strong>（' + maxKeep + '处对齐）';
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // ===== 四大维度诊断（对照指南针） =====
+  html += '<div style="font-size:16px;font-weight:700;color:var(--navy);margin:4px 0 14px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--navy);border-radius:2px;display:inline-block;"></span>四大维度诊断（对照指南针）</div>';
+
   dimKeys.forEach((key) => {
     const dim = STRATEGIC_DIMENSIONS[key];
+    const d = diag[key];
     const plans = dim.plans(records, activeCats);
-    // Extract big items (first 3-4 key items from phase 1)
-    const phase1Items = plans[0] ? plans[0].items : [];
-    const bigItems = phase1Items.slice(0, 4);
 
-    html += '<div style="margin-bottom:14px;border:1px solid ' + dim.color + '25;border-radius:var(--radius);overflow:hidden;transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow=\'0 2px 12px ' + dim.color + '15\'" onmouseout="this.style.boxShadow=\'none\'">';
+    html += '<div style="margin-bottom:16px;border:1px solid ' + dim.color + '25;border-radius:var(--radius);overflow:hidden;">';
 
     // Header
-    html += '<div style="background:' + dim.bgColor + ';padding:12px 16px;border-left:4px solid ' + dim.color + ';display:flex;align-items:center;justify-content:space-between;">';
-    html += '<div style="display:flex;align-items:center;gap:10px;">';
+    html += '<div style="background:' + dim.bgColor + ';padding:12px 16px;border-left:4px solid ' + dim.color + ';display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">';
+    html += '<div style="display:flex;align-items:center;gap:10px;min-width:0;">';
     html += '<span style="font-size:22px;">' + dim.icon + '</span>';
-    html += '<div><div style="font-size:14px;font-weight:700;color:var(--navy);">' + dim.name + '</div>';
-    html += '<div style="font-size:11px;color:var(--text-secondary);">' + dim.description + '</div></div>';
+    html += '<div style="min-width:0;"><div style="font-size:14px;font-weight:700;color:var(--navy);">' + dim.name + '</div>';
+    html += '<div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">' + d.compass + '</div></div>';
     html += '</div>';
-    html += '<button onclick="downloadRecapWord(\'' + key + '\', \'' + escapeHtml(label).replace(/'/g, "\\'") + '\')" style="background:' + dim.color + ';color:#fff;border:none;padding:6px 14px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0;font-family:inherit;" title="下载包含三阶段详细方案的Word文档">📥 下载详细方案</button>';
+    html += '<button onclick="downloadRecapWord(\'' + key + '\', \'' + escapeHtml(label).replace(/'/g, "\\'") + '\')" style="background:' + dim.color + ';color:#fff;border:none;padding:6px 14px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit;">📥 下载复盘报告</button>';
     html += '</div>';
 
-    // Big items summary
     html += '<div style="padding:12px 16px;">';
-    html += '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">核心建议（点击下方按钮下载含三阶段完整方案的Word文档）</div>';
-    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
-    bigItems.forEach((item, idx) => {
-      html += '<div style="display:flex;align-items:flex-start;gap:8px;padding:8px;background:var(--surface-alt);border-radius:var(--radius-sm);font-size:12px;line-height:1.6;">';
-      html += '<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:' + dim.color + ';color:#fff;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;">' + (idx + 1) + '</span>';
-      html += '<span style="color:var(--text);">' + item + '</span>';
+
+    // 偏离项
+    if (d.deviations.length > 0) {
+      html += '<div style="margin-bottom:10px;">';
+      html += '<div style="font-size:12px;font-weight:700;color:var(--coral);margin-bottom:6px;">⚠️ 偏离指南针的部分（' + d.deviations.length + '处）</div>';
+      d.deviations.forEach((dev, i) => {
+        html += '<div style="background:var(--coral-light);border-left:3px solid var(--coral);padding:8px 12px;border-radius:var(--radius-sm);margin-bottom:6px;">';
+        html += '<div style="font-size:12px;color:var(--text);line-height:1.7;">' + (i + 1) + '. ' + dev.text + '</div>';
+        html += '<div style="font-size:12px;color:var(--coral);line-height:1.7;margin-top:4px;padding-left:12px;">💡 改进建议：' + dev.advice + '</div>';
+        html += '</div>';
+      });
       html += '</div>';
-    });
-    html += '</div>';
+    }
 
-    // Expand/collapse toggle for detailed view
+    // 可继续做
+    if (d.keepDoing.length > 0) {
+      html += '<div style="margin-bottom:8px;">';
+      html += '<div style="font-size:12px;font-weight:700;color:var(--teal);margin-bottom:6px;">✅ 可继续做的部分（' + d.keepDoing.length + '处）</div>';
+      d.keepDoing.forEach((k, i) => {
+        html += '<div style="background:var(--teal-light);border-left:3px solid var(--teal);padding:8px 12px;border-radius:var(--radius-sm);margin-bottom:4px;font-size:12px;color:var(--text);line-height:1.7;">' + (i + 1) + '. ' + k + '</div>';
+      });
+      html += '</div>';
+    }
+
+    // 展开三阶段改进路径
     const detailId = 'detail_' + key;
-    html += '<div style="margin-top:10px;text-align:center;">';
-    html += '<button onclick="var e=document.getElementById(\'' + detailId + '\');var t=this;if(e.style.display===\'none\'){e.style.display=\'block\';t.innerHTML=\'▲ 收起详细方案\';}else{e.style.display=\'none\';t.innerHTML=\'▼ 展开查看三阶段详细方案\';}" style="background:none;border:1px solid var(--border);color:var(--text-secondary);padding:4px 16px;border-radius:var(--radius-sm);font-size:11px;cursor:pointer;font-family:inherit;">▼ 展开查看三阶段详细方案</button>';
+    html += '<div style="text-align:center;margin-top:4px;">';
+    html += '<button onclick="var e=document.getElementById(\'' + detailId + '\');var t=this;if(e.style.display===\'none\'){e.style.display=\'block\';t.innerHTML=\'▲ 收起改进路径\';}else{e.style.display=\'none\';t.innerHTML=\'▼ 展开三阶段改进路径\';}" style="background:none;border:1px solid var(--border);color:var(--text-secondary);padding:4px 16px;border-radius:var(--radius-sm);font-size:11px;cursor:pointer;font-family:inherit;">▼ 展开三阶段改进路径</button>';
     html += '</div>';
-
-    // Detailed plans (hidden by default)
     html += '<div id="' + detailId + '" style="display:none;margin-top:10px;">';
     plans.forEach((plan, pi) => {
       html += '<div style="margin-bottom:10px;' + plan.style + ';padding:10px 12px;border-radius:var(--radius-sm);">';
-      html += '<div style="font-weight:600;color:var(--navy);font-size:12px;margin-bottom:6px;display:flex;align-items:center;gap:6px;">';
-      html += '<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:' + dim.color + ';color:#fff;font-size:10px;font-weight:700;flex-shrink:0;">' + (pi + 1) + '</span>';
-      html += plan.phase + '</div>';
+      html += '<div style="font-weight:600;color:var(--navy);font-size:12px;margin-bottom:6px;display:flex;align-items:center;gap:6px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:' + dim.color + ';color:#fff;font-size:10px;font-weight:700;flex-shrink:0;">' + (pi + 1) + '</span>' + plan.phase + '</div>';
       html += '<ul style="margin:0;padding-left:22px;font-size:12px;color:var(--text);line-height:1.9;">';
-      plan.items.forEach(item => {
-        html += '<li style="margin-bottom:2px;">' + item + '</li>';
-      });
+      plan.items.forEach(item => { html += '<li style="margin-bottom:2px;">' + item + '</li>'; });
       html += '</ul></div>';
     });
-    html += '</div></div></div>';
+    html += '</div>';
+
+    html += '</div></div>';
   });
-  html += '</div>';
-
-  // ===== SECTION 3: NEXT STEPS =====
-  html += '<div style="margin-bottom:20px;">';
-  html += '<div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:var(--teal);border-radius:2px;display:inline-block;"></span>🎯 下一步行动计划</div>';
-  html += '<div style="padding:14px;background:var(--surface-alt);border-radius:var(--radius-sm);">';
-
-  const priorityItems = [];
-  if (activeCats.includes('apn')) priorityItems.push({ p: 'high', t: '完成APN汇报课件，用数据展示APN临床价值' });
-  if (activeCats.includes('zhuanbing')) priorityItems.push({ p: 'high', t: '推进专病系统前哨预警和数据分析模块优化' });
-  if (activeCats.includes('biaozhun')) priorityItems.push({ p: 'medium', t: '对标最新指南，启动SOP周期性审查与更新' });
-  if (activeCats.includes('keyan')) priorityItems.push({ p: 'high', t: '明确投稿目标期刊，制定论文修改与投稿时间表' });
-  if (activeCats.includes('bisai')) priorityItems.push({ p: 'medium', t: '备赛材料完善，安排至少2次模拟演练' });
-  if (activeCats.includes('gzh')) priorityItems.push({ p: 'low', t: '制定下期公众号内容计划，储备3篇科普推文' });
-  if (priorityItems.length === 0) {
-    priorityItems.push({ p: 'medium', t: '从APN工作或专病管理方向开始建立日常记录习惯' });
-    priorityItems.push({ p: 'medium', t: '设置每周固定时间进行工作梳理与复盘' });
-  }
-  priorityItems.sort((a, b) => { const o = { high: 0, medium: 1, low: 2 }; return o[a.p] - o[b.p]; });
-
-  priorityItems.forEach((item, i) => {
-    const badge = item.p === 'high' ? '<span style="background:var(--coral);color:#fff;padding:1px 6px;border-radius:4px;font-size:10px;">高优</span>' :
-      item.p === 'medium' ? '<span style="background:var(--gold);color:#fff;padding:1px 6px;border-radius:4px;font-size:10px;">中优</span>' :
-      '<span style="background:var(--slate);color:#fff;padding:1px 6px;border-radius:4px;font-size:10px;">常规</span>';
-    html += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:13px;">';
-    html += '<span style="background:var(--teal);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;">' + (i + 1) + '</span>';
-    html += '<span>' + badge + item.t + '</span></div>';
-  });
-  html += '</div></div>';
-
-  // ===== SECTION 4: LEARNING =====
-  html += '<div style="margin-bottom:16px;">';
-  html += '<div style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:18px;background:#8b5cf6;border-radius:2px;display:inline-block;"></span>📚 学习建议</div>';
-  html += '<div style="padding:14px;background:var(--surface-alt);border-radius:var(--radius-sm);">';
-
-  const learnMap = {
-    apn: ['🎓 关注APN高级护理实践最新进展，参加中华护理学会APN继教项目', '📖 阅读《高级护理实践》《护理管理》等专业期刊'],
-    zhuanbing: ['💻 学习数据可视化工具（Power BI/Tableau），提升数据呈现能力', '🏥 关注国内外专病管理创新模式（Patient Navigation等）'],
-    biaozhun: ['📋 系统学习循证护理实践方法学（证据检索、评价、应用）', '🔍 关注Cochrane Library、JBI等循证资源平台更新'],
-    keyan: ['📊 加强医学统计学学习，掌握SPSS/R基础分析技能', '✍️ 参加学术写作工作坊，提升论文写作与投稿技巧'],
-    bisai: ['🎤 学习演讲表达与PPT设计技巧，提升展示效果'],
-    gzh: ['📱 关注新媒体运营知识，提升内容创作与传播能力']
-  };
-  let hasLearning = false;
-  Object.entries(learnMap).forEach(([cat, items]) => {
-    if (activeCats.includes(cat)) {
-      hasLearning = true;
-      items.forEach(s => { html += '<div style="font-size:13px;color:var(--text);line-height:2;padding:2px 0;">' + s + '</div>'; });
-    }
-  });
-  if (!hasLearning) {
-    html += '<div style="font-size:13px;color:var(--text);line-height:2;">📚 建议从APN专业领域开始，建立系统化的学习计划</div>';
-    html += '<div style="font-size:13px;color:var(--text);line-height:2;">🎯 关注年度继续教育学分要求，提前规划学习进度</div>';
-  }
-  html += '</div></div>';
 
   // Footer
   html += '<div style="text-align:center;font-size:11px;color:var(--text-secondary);padding-top:10px;border-top:1px solid var(--border);">';
-  html += '🤖 动态复盘 · 基于 ' + escapeHtml(label) + ' ' + totalRecords + ' 条记录 · 生成于 ' + new Date().toLocaleString('zh-CN');
+  html += '🧭 动态复盘 · 对照「APN工作方向指南针」· 基于 ' + escapeHtml(label) + ' ' + totalRecords + ' 条记录 · 生成于 ' + new Date().toLocaleString('zh-CN');
   html += '</div>';
 
   container.innerHTML = html;
@@ -2403,9 +2521,26 @@ function downloadRecapWord(dimKey, periodLabel) {
   catOrder.forEach(c => { byCat[c] = []; });
   filtered.forEach(r => { if (byCat[r.category]) byCat[r.category].push(r); else (byCat['qita'] || []).push(r); });
   const activeCats = catOrder.filter(c => byCat[c] && byCat[c].length > 0);
-
-  const plans = dim.plans(records, activeCats);
   const totalRecords = filtered.length;
+  const dataRecords = filtered.filter(r => r.data);
+  const dataRatio = totalRecords > 0 ? Math.round(dataRecords.length / totalRecords * 100) : 0;
+
+  const diag = analyzeCompass(activeCats, byCat, dataRecords, totalRecords);
+  const d = diag[dimKey];
+  const plans = dim.plans(records, activeCats);
+
+  // 金字塔总纲数据
+  const dimKeys = ['standardization', 'clinicalValue', 'qualitySafety', 'influence'];
+  let totalDeviations = 0, totalKeep = 0;
+  dimKeys.forEach(k => { totalDeviations += diag[k].deviations.length; totalKeep += diag[k].keepDoing.length; });
+  let coreConclusion = '';
+  if (totalDeviations >= 4) {
+    coreConclusion = '本期工作主线方向正确（专病管理数字化特色突出），但对照指南针在「数据可展示」「可复制可推广」「落地照护」三个灵魂三问上存在 ' + totalDeviations + ' 处偏离，需重点纠偏。';
+  } else if (totalDeviations >= 1) {
+    coreConclusion = '本期工作与指南针方向基本对齐，但仍有 ' + totalDeviations + ' 处需微调，聚焦补齐数据化与可复制两个短板即可更进一步。';
+  } else {
+    coreConclusion = '本期工作与指南针方向高度对齐，四大维度均在轨道上，保持节奏、持续深耕即可。';
+  }
 
   // Build Word HTML
   let word = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">';
@@ -2420,32 +2555,52 @@ function downloadRecapWord(dimKey, periodLabel) {
   word += 'p { margin: 4px 0; text-indent: 2em; }';
   word += 'ul { margin: 6px 0; padding-left: 2em; }';
   word += 'li { margin-bottom: 6px; }';
-  word += 'table { border-collapse: collapse; width: 100%; margin: 10px 0; }';
-  word += 'table td, table th { border: 1px solid #ddd; padding: 8px; font-size: 13px; }';
-  word += 'table th { background: #f0f4f8; font-weight: bold; }';
   word += '.meta { text-align: center; color: #888; font-size: 12px; margin-bottom: 16px; }';
-  word += '.phase-label { background: #f0f4f8; padding: 6px 12px; font-weight: bold; margin-top: 14px; }';
+  word += '.concl { background: #f0f4f8; border-left: 4px solid #d4a017; padding: 10px 14px; margin: 10px 0; }';
+  word += '.dev { border-left: 4px solid #e85d3a; background: #fdf0ec; padding: 8px 12px; margin: 8px 0; }';
+  word += '.adv { color: #e85d3a; margin-left: 2em; }';
+  word += '.keep { border-left: 4px solid #0d9488; background: #e6f7f4; padding: 8px 12px; margin: 6px 0; }';
   word += '</style></head><body>';
 
-  word += '<h1>' + dim.name + ' — 详细方案</h1>';
+  word += '<h1>智能复盘报告 · ' + dim.name + '</h1>';
   word += '<p class="meta">复盘周期：' + periodLabel + ' | 工作记录数：' + totalRecords + ' 条 | 生成时间：' + new Date().toLocaleString('zh-CN') + '</p>';
-  word += '<p class="meta">分析视角：护理分管院长 | 生成工具：陶陶的工作台智能复盘引擎</p>';
+  word += '<p class="meta">分析视角：德阳市人民医院护理分管院长 | 标尺：APN工作方向指南针</p>';
 
-  word += '<h2>一、维度概述</h2>';
+  // 一、金字塔总纲
+  word += '<h2>一、复盘总纲（金字塔结论）</h2>';
+  word += '<p class="concl">' + coreConclusion + '</p>';
+  word += '<p>总记录 ' + totalRecords + ' 条 · 偏离指南针 ' + totalDeviations + ' 处 · 可继续做 ' + totalKeep + ' 处 · 数据化率 ' + dataRatio + '%</p>';
+
+  // 二、维度对照指南针
+  word += '<h2>二、' + dim.name + ' · 对照指南针</h2>';
   word += '<p>' + dim.description + '</p>';
+  word += '<p>本维度' + d.compass + '。</p>';
 
-  word += '<h2>二、三阶段实施方案</h2>';
+  // 三、偏离项
+  word += '<h2>三、偏离指南针的部分（' + d.deviations.length + '处）</h2>';
+  if (d.deviations.length === 0) {
+    word += '<p>本维度无偏离，与指南针方向对齐。</p>';
+  } else {
+    d.deviations.forEach((dev, i) => {
+      word += '<div class="dev"><p style="text-indent:0;"><strong>' + (i + 1) + '. ' + dev.text + '</strong></p>';
+      word += '<p class="adv">改进建议：' + dev.advice + '</p></div>';
+    });
+  }
+
+  // 四、可继续做
+  word += '<h2>四、可继续做的部分（' + d.keepDoing.length + '处）</h2>';
+  word += '<ul>';
+  d.keepDoing.forEach(k => { word += '<li>' + k + '</li>'; });
+  word += '</ul>';
+
+  // 五、三阶段改进路径
+  word += '<h2>五、三阶段改进路径</h2>';
   plans.forEach((plan, pi) => {
     word += '<h3>第' + (pi + 1) + '阶段：' + plan.phase + '</h3>';
     word += '<ul>';
-    plan.items.forEach(item => {
-      word += '<li>' + item + '</li>';
-    });
+    plan.items.forEach(item => { word += '<li>' + item + '</li>'; });
     word += '</ul>';
   });
-
-  word += '<h2>三、执行建议</h2>';
-  word += '<p>以上方案建议按阶段顺序推进，每个阶段完成后进行阶段复盘，评估达成情况并调整下一阶段计划。建议将关键里程碑写入工作台待办事项，利用工作台的智能复盘功能定期跟踪进展。</p>';
 
   word += '<p style="text-align:center;color:#aaa;margin-top:30px;">— 本报告由陶陶的工作台智能复盘引擎自动生成 —</p>';
   word += '</body></html>';
@@ -2455,12 +2610,12 @@ function downloadRecapWord(dimKey, periodLabel) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = periodLabel.replace(/[\/\\:*?"<>|]/g, '_') + '_' + dim.name + '_详细方案.doc';
+  a.download = periodLabel.replace(/[\/\\:*?"<>|]/g, '_') + '_' + dim.name + '_复盘报告.doc';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showToast('已下载：' + dim.name + ' 详细方案');
+  showToast('已下载：' + dim.name + ' 复盘报告');
 }
 
 renderAll();
